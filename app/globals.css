@@ -1,0 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --color-dark: #0a0a0a;
+  --color-light: #f8f8f8;
+  --color-accent: #e8a020;
+  --color-green: #00c47a;
+  --color-red: #ff3b3b;
+  --color-blue: #0066ff;
+  --color-border: #e5e7eb;
+  --nav-height: 60px;
+  --breaking-height: 36px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  color: #111827;
+  background: #ffffff;
+}
+
+/* Ticker animation */
+.ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-inner {
+  display: inline-flex;
+  animation: ticker 40s linear infinite;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-inner:hover {
+  animation-play-state: paused;
+}
+
+/* Article hero gradient */
+.hero-gradient {
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.85) 0%,
+    rgba(0,0,0,0.5) 40%,
+    rgba(0,0,0,0.1) 70%,
+    transparent 100%
+  );
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Category-specific accent colors */
+.cat-markets { border-color: #0066ff; color: #0066ff; }
+.cat-economy { border-color: #8b5cf6; color: #8b5cf6; }
+.cat-analysis { border-color: #e8a020; color: #e8a020; }
+.cat-opinion { border-color: #ec4899; color: #ec4899; }
+.cat-trading { border-color: #00c47a; color: #00c47a; }
+.cat-crypto { border-color: #f97316; color: #f97316; }
+
+/* Skip nav */
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-nav:focus {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: auto;
+  height: auto;
+  padding: 12px 20px;
+  background: #0a0a0a;
+  color: #fff;
+  z-index: 9999;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Card hover transitions */
+.article-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.article-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Breaking bar marquee */
+.breaking-marquee {
+  display: flex;
+  gap: 0;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Prose overrides for article pages */
+.prose-antigravity h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #0a0a0a;
+}
+
+.prose-antigravity h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  color: #111827;
+}
+
+.prose-antigravity .pull-quote {
+  border-left: 4px solid var(--color-accent);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #374151;
+  background: #fefce8;
+  border-radius: 0 8px 8px 0;
+}

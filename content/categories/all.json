@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Markets",
+        "slug": "markets",
+        "description": "Equities, bonds, and global financial markets",
+        "color": "#0066ff",
+        "accent": "#0066ff"
+    },
+    {
+        "name": "Economy",
+        "slug": "economy",
+        "description": "Macro economics, central banks, and policy",
+        "color": "#8b5cf6",
+        "accent": "#8b5cf6"
+    },
+    {
+        "name": "Analysis",
+        "slug": "analysis",
+        "description": "Deep-dive analytical pieces and research",
+        "color": "#e8a020",
+        "accent": "#e8a020"
+    },
+    {
+        "name": "Opinion",
+        "slug": "opinion",
+        "description": "Editor and analyst perspectives",
+        "color": "#ec4899",
+        "accent": "#ec4899"
+    },
+    {
+        "name": "Trading",
+        "slug": "trading",
+        "description": "Trading strategies, ideas, and technical analysis",
+        "color": "#00c47a",
+        "accent": "#00c47a"
+    },
+    {
+        "name": "Crypto",
+        "slug": "crypto",
+        "description": "Cryptocurrency markets, DeFi, and blockchain",
+        "color": "#f97316",
+        "accent": "#f97316"
+    }
+]
