@@ -1,3 +1,4 @@
+import { getAllPosts } from "@/lib/posts";
 import { getAllCategories } from "@/lib/categories";
 
 export const dynamic = "force-static";
