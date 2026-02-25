@@ -42,7 +42,7 @@ export default function Header() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchValue.trim()) {
-            window.location.href = `/search?q=${encodeURIComponent(searchValue.trim())}`;
+            window.location.href = `/lazurus/search?q=${encodeURIComponent(searchValue.trim())}`;
         }
     };
 
