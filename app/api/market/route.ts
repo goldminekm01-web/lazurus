@@ -5,12 +5,10 @@ export const dynamic = "force-static";
 
 // Simple Yahoo Finance proxy — no API key needed
 // Endpoint: /api/market?symbols=SPX,BTC,AAPL
-export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const symbols = searchParams.get("symbols") || "SPX,BTC,AAPL";
+export async function GET() {
+    // Hardcoded symbols for static version
+    const symbols = "SPX,BTC,AAPL";
 
-    // Example quotes — replace with real API call if you have a key
-    // Yahoo Finance v8 (unofficial): https://query1.finance.yahoo.com/v8/finance/chart/${symbol}
     try {
         const symbolList = symbols.split(",").slice(0, 15);
         const quotes = symbolList.map((symbol) => ({
