@@ -7,6 +7,10 @@ import { Save, Eye, ArrowLeft, TrendingUp } from "lucide-react";
 
 const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Crypto"];
 
+export function generateStaticParams() {
+    return [];
+}
+
 export default function EditPostPage() {
     const router = useRouter();
     const params = useParams();
