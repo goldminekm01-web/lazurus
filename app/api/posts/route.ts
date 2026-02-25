@@ -4,6 +4,13 @@ import { getAllPostsIncludingDrafts, getPostBySlug, savePost, deletePost } from 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
+    const token = request.headers.get("x-admin-token");
+
+    // Strictly verify token for all GET requests to /api/posts
+    if (token !== process.env.ADMIN_PASSWORD) {
+        console.error(`[API] Unauthorized GET request. Token mismatch. Expected: ${process.env.ADMIN_PASSWORD ? "SET" : "NOT SET"}`);
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     if (slug) {
         const post = await getPostBySlug(slug);
@@ -15,9 +22,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-    const { slug, frontmatter, content, password } = await request.json();
+    const { slug, frontmatter, content } = await request.json();
+    const token = request.headers.get("x-admin-token");
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (token !== process.env.ADMIN_PASSWORD) {
+        console.error(`[API] Unauthorized POST request. Token mismatch.`);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -28,9 +37,10 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
-    const password = request.headers.get("x-admin-password");
+    const token = request.headers.get("x-admin-token");
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (token !== process.env.ADMIN_PASSWORD) {
+        console.error(`[API] Unauthorized DELETE request. Token mismatch.`);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

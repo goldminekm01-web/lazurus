@@ -1,0 +1,31 @@
+[debug] [2026-02-25T22:13:29.412Z] ----------------------------------------------------------------------
+[debug] [2026-02-25T22:13:29.414Z] Command:       /opt/homebrew/Cellar/node/25.6.1_1/bin/node /Users/mac/Desktop/reddit/antigravity/node_modules/.bin/firebase deploy
+[debug] [2026-02-25T22:13:29.414Z] CLI Version:   15.7.0
+[debug] [2026-02-25T22:13:29.414Z] Platform:      darwin
+[debug] [2026-02-25T22:13:29.414Z] Node Version:  v25.6.1
+[debug] [2026-02-25T22:13:29.414Z] Time:          Thu Feb 26 2026 01:13:29 GMT+0300 (East Africa Time)
+[debug] [2026-02-25T22:13:29.414Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-25T22:13:30.280Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-25T22:13:30.280Z] > authorizing via signed-in user (goldminekm01@gmail.com)
+[debug] [2026-02-25T22:13:30.280Z] [iam] checking project lazarus-news-site for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-02-25T22:13:30.281Z] Checked if tokens are valid: true, expires at: 1772061192818
+[debug] [2026-02-25T22:13:30.281Z] Checked if tokens are valid: true, expires at: 1772061192818
+[debug] [2026-02-25T22:13:30.281Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions [none]
+[debug] [2026-02-25T22:13:30.281Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions  x-goog-user-project=lazarus-news-site
+[debug] [2026-02-25T22:13:30.281Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-02-25T22:13:32.009Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions 400
+[debug] [2026-02-25T22:13:32.010Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions {"error":{"code":400,"message":"Project 'projects/lazarus-news-site' not found or deleted.","status":"INVALID_ARGUMENT","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"USER_PROJECT_DENIED","domain":"googleapis.com","metadata":{"consumer":"projects/lazarus-news-site","service":"cloudresourcemanager.googleapis.com","containerInfo":"projects/lazarus-news-site"}}]}}
+[debug] [2026-02-25T22:13:32.011Z] [iam] error while checking permissions, command may fail: Request to https://cloudresourcemanager.googleapis.com/v1/projects/lazarus-news-site:testIamPermissions had HTTP Error: 400, Project 'projects/lazarus-news-site' not found or deleted.
+[debug] [2026-02-25T22:13:32.011Z] Checked if tokens are valid: true, expires at: 1772061192818
+[debug] [2026-02-25T22:13:32.011Z] Checked if tokens are valid: true, expires at: 1772061192818
+[debug] [2026-02-25T22:13:32.011Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lazarus-news-site [none]
+[debug] [2026-02-25T22:13:32.671Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lazarus-news-site 403
+[debug] [2026-02-25T22:13:32.671Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lazarus-news-site {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2026-02-25T22:13:32.672Z] Request to https://firebase.googleapis.com/v1beta1/projects/lazarus-news-site had HTTP Error: 403, The caller does not have permission
+[debug] [2026-02-25T22:13:32.968Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/lazarus-news-site had HTTP Error: 403, The caller does not have permission
+    at responseToError (/Users/mac/Desktop/reddit/antigravity/node_modules/firebase-tools/lib/responseToError.js:53:12)
+    at RetryOperation._fn (/Users/mac/Desktop/reddit/antigravity/node_modules/firebase-tools/lib/apiv2.js:330:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to get Firebase project lazarus-news-site. Please make sure the project exists and your account has permission to access it.
