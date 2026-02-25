@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+export const dynamic = "force-static";
+
 // Simple Yahoo Finance proxy — no API key needed
 // Endpoint: /api/market?symbols=SPX,BTC,AAPL
 export async function GET(req: NextRequest) {

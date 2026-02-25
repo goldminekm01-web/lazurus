@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getAllPostsIncludingDrafts, savePost, deletePost } from "@/lib/posts";
 
+export const dynamic = "force-static";
+
 function checkAuth(req: NextRequest): boolean {
     const token = req.headers.get("x-admin-token") || req.cookies.get("admin_token")?.value;
     return token === process.env.ADMIN_PASSWORD;
