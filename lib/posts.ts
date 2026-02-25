@@ -1,97 +1,149 @@
-import fs from "fs";
-import path from "path";
+import { db } from "./firebase-admin";
 import matter from "gray-matter";
 import type { Post } from "./types";
-
-const POSTS_DIR = path.join(process.cwd(), "content/posts");
-
-function getPostFiles(): string[] {
-    if (!fs.existsSync(POSTS_DIR)) return [];
-    return fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith(".mdx") || f.endsWith(".md"));
-}
 
 function calcReadTime(text: string): number {
     const words = text.trim().split(/\s+/).length;
     return Math.ceil(words / 200);
 }
 
-export function getAllPosts(): Post[] {
-    const files = getPostFiles();
-    return files
-        .map((file) => {
-            const raw = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
-            const { data, content } = matter(raw);
+export async function getAllPosts(): Promise<Post[]> {
+    try {
+        const snapshot = await db.collection("posts")
+            .where("publishAt", "<=", new Date().toISOString())
+            .orderBy("publishAt", "desc")
+            .get();
+
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
             return {
                 ...data,
-                slug: data.slug || file.replace(/\.(mdx|md)$/, ""),
-                content,
-                readTime: calcReadTime(content),
-                categories: data.categories || [],
-                tags: data.tags || [],
-                coverImage: data.coverImage || "/images/placeholder.jpg",
-                coverImageAlt: data.coverImageAlt || data.title || "",
+                readTime: calcReadTime(data.content || ""),
             } as Post;
-        })
-        .filter((p) => {
-            const publish = new Date(p.publishAt);
-            return publish <= new Date();
-        })
-        .sort((a, b) => new Date(b.publishAt).getTime() - new Date(a.publishAt).getTime());
+        });
+    } catch (error) {
+        console.error("Error fetching posts from Firestore:", error);
+        return [];
+    }
 }
 
-export function getAllPostsIncludingDrafts(): Post[] {
-    const files = getPostFiles();
-    return files
-        .map((file) => {
-            const raw = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
-            const { data, content } = matter(raw);
+export async function getAllPostsIncludingDrafts(): Promise<Post[]> {
+    try {
+        const snapshot = await db.collection("posts")
+            .orderBy("publishAt", "desc")
+            .get();
+
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
             return {
                 ...data,
-                slug: data.slug || file.replace(/\.(mdx|md)$/, ""),
-                content,
-                readTime: calcReadTime(content),
-                categories: data.categories || [],
-                tags: data.tags || [],
-                coverImage: data.coverImage || "/images/placeholder.jpg",
+                readTime: calcReadTime(data.content || ""),
             } as Post;
-        })
-        .sort((a, b) => new Date(b.publishAt).getTime() - new Date(a.publishAt).getTime());
+        });
+    } catch (error) {
+        console.error("Error fetching all posts from Firestore:", error);
+        return [];
+    }
 }
 
-export function getPostBySlug(slug: string): Post | null {
-    const allPosts = getAllPostsIncludingDrafts();
-    return allPosts.find((p) => p.slug === slug) || null;
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+    try {
+        const doc = await db.collection("posts").doc(slug).get();
+        if (!doc.exists) return null;
+        const data = doc.data();
+        return {
+            ...data,
+            readTime: calcReadTime(data?.content || ""),
+        } as Post;
+    } catch (error) {
+        console.error(`Error fetching post by slug ${slug}:`, error);
+        return null;
+    }
 }
 
-export function getFeaturedPosts(count = 3): Post[] {
-    return getAllPosts()
-        .filter((p) => p.featured)
-        .slice(0, count);
+export async function getFeaturedPosts(count = 3): Promise<Post[]> {
+    try {
+        const snapshot = await db.collection("posts")
+            .where("featured", "==", true)
+            .where("publishAt", "<=", new Date().toISOString())
+            .orderBy("publishAt", "desc")
+            .limit(count)
+            .get();
+
+        return snapshot.docs.map(doc => ({
+            ...doc.data(),
+            readTime: calcReadTime(doc.data().content || ""),
+        } as Post));
+    } catch (error) {
+        console.error("Error fetching featured posts:", error);
+        return [];
+    }
 }
 
-export function getLatestPosts(count = 12): Post[] {
-    return getAllPosts().slice(0, count);
+export async function getLatestPosts(count = 12): Promise<Post[]> {
+    const posts = await getAllPosts();
+    return posts.slice(0, count);
 }
 
-export function getPostsByCategory(categorySlug: string, count?: number): Post[] {
-    const filtered = getAllPosts().filter((p) =>
-        p.categories.map((c) => c.toLowerCase()).includes(categorySlug.toLowerCase())
-    );
-    return count ? filtered.slice(0, count) : filtered;
+export async function getPostsByCategory(categorySlug: string, count?: number): Promise<Post[]> {
+    try {
+        let query = db.collection("posts")
+            .where("categories", "array-contains", categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1)) // Simple capitalization
+            .where("publishAt", "<=", new Date().toISOString())
+            .orderBy("publishAt", "desc");
+
+        if (count) query = query.limit(count);
+
+        const snapshot = await query.get();
+        return snapshot.docs.map(doc => ({
+            ...doc.data(),
+            readTime: calcReadTime(doc.data().content || ""),
+        } as Post));
+    } catch (error) {
+        console.error(`Error fetching posts for category ${categorySlug}:`, error);
+        return [];
+    }
 }
 
-export function getPostsByTag(tag: string): Post[] {
-    return getAllPosts().filter((p) =>
-        p.tags.map((t) => t.toLowerCase()).includes(tag.toLowerCase())
-    );
+export async function getPostsByTag(tag: string): Promise<Post[]> {
+    try {
+        const snapshot = await db.collection("posts")
+            .where("tags", "array-contains", tag)
+            .where("publishAt", "<=", new Date().toISOString())
+            .orderBy("publishAt", "desc")
+            .get();
+
+        return snapshot.docs.map(doc => ({
+            ...doc.data(),
+            readTime: calcReadTime(doc.data().content || ""),
+        } as Post));
+    } catch (error) {
+        console.error(`Error fetching posts for tag ${tag}:`, error);
+        return [];
+    }
 }
 
-export function getPostsByAuthor(authorSlug: string): Post[] {
-    return getAllPosts().filter((p) => p.author === authorSlug);
+export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
+    try {
+        const snapshot = await db.collection("posts")
+            .where("author", "==", authorSlug)
+            .where("publishAt", "<=", new Date().toISOString())
+            .orderBy("publishAt", "desc")
+            .get();
+
+        return snapshot.docs.map(doc => ({
+            ...doc.data(),
+            readTime: calcReadTime(doc.data().content || ""),
+        } as Post));
+    } catch (error) {
+        console.error(`Error fetching posts for author ${authorSlug}:`, error);
+        return [];
+    }
 }
 
-export function getRelatedPosts(post: Post, count = 4): Post[] {
-    return getAllPosts()
+export async function getRelatedPosts(post: Post, count = 4): Promise<Post[]> {
+    const posts = await getAllPosts();
+    return posts
         .filter(
             (p) =>
                 p.slug !== post.slug &&
@@ -100,20 +152,21 @@ export function getRelatedPosts(post: Post, count = 4): Post[] {
         .slice(0, count);
 }
 
-export function savePost(slug: string, frontmatter: Record<string, unknown>, content: string): void {
-    const filePath = path.join(POSTS_DIR, `${slug}.mdx`);
-    const fileContent = matter.stringify(content, frontmatter);
-    fs.mkdirSync(POSTS_DIR, { recursive: true });
-    fs.writeFileSync(filePath, fileContent, "utf8");
+export async function savePost(slug: string, frontmatter: Record<string, unknown>, content: string): Promise<void> {
+    const postData = {
+        ...frontmatter,
+        slug,
+        content,
+        updatedAt: new Date().toISOString(),
+    };
+    await db.collection("posts").doc(slug).set(postData, { merge: true });
 }
 
-export function deletePost(slug: string): void {
-    const mdxPath = path.join(POSTS_DIR, `${slug}.mdx`);
-    const mdPath = path.join(POSTS_DIR, `${slug}.md`);
-    if (fs.existsSync(mdxPath)) fs.unlinkSync(mdxPath);
-    if (fs.existsSync(mdPath)) fs.unlinkSync(mdPath);
+export async function deletePost(slug: string): Promise<void> {
+    await db.collection("posts").doc(slug).delete();
 }
 
-export function getAllSlugs(): string[] {
-    return getAllPostsIncludingDrafts().map((p) => p.slug);
+export async function getAllSlugs(): Promise<string[]> {
+    const posts = await getAllPostsIncludingDrafts();
+    return posts.map((p) => p.slug);
 }

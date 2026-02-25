@@ -9,10 +9,10 @@ import Link from "next/link";
 
 export const revalidate = 60; // ISR — revalidate every 60 seconds
 
-export default function HomePage() {
-    const allPosts = getAllPosts();
-    const featured = getFeaturedPosts(4);
-    const latest = getLatestPosts(12);
+export default async function HomePage() {
+    const allPosts = await getAllPosts();
+    const featured = await getFeaturedPosts(4);
+    const latest = await getLatestPosts(12);
     const categories = getAllCategories();
 
     const leadPost = featured[0] || allPosts[0];
@@ -36,13 +36,13 @@ export default function HomePage() {
             <div className="max-w-8xl mx-auto px-4 sm:px-6">
                 {/* Category Strips */}
                 <div className="divide-y divide-gray-100">
-                    {categories.map((cat) => {
-                        const posts = getPostsByCategory(cat.slug, 6);
+                    {await Promise.all(categories.map(async (cat) => {
+                        const posts = await getPostsByCategory(cat.slug, 6);
                         if (!posts.length) return null;
                         return (
                             <CategoryStrip key={cat.slug} category={cat} posts={posts} />
                         );
-                    })}
+                    }))}
                 </div>
 
                 {/* Latest News Grid */}

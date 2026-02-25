@@ -1,12 +1,10 @@
 import { getAllPosts } from "@/lib/posts";
 import { getAllCategories } from "@/lib/categories";
 
-export const dynamic = "force-static";
-
-export default function sitemap() {
+export default async function sitemap() {
     const buildDate = new Date().toISOString();
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://antigravity.vercel.app";
-    const posts = getAllPosts();
+    const posts = await getAllPosts();
     const categories = getAllCategories();
 
     const staticPages = [

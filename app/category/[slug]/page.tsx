@@ -32,7 +32,7 @@ export default async function CategoryPage({ params }: Props) {
     const cat = getCategoryBySlug(slug);
     if (!cat) notFound();
 
-    const posts = getPostsByCategory(slug);
+    const posts = await getPostsByCategory(slug);
 
     return (
         <div className="max-w-8xl mx-auto px-4 sm:px-6 py-8">

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-    const all = getAllPosts();
+    const all = await getAllPosts();
     const tags = new Set<string>();
     all.forEach((p) => p.tags.forEach((t) => tags.add(t.toLowerCase().replace(/\s+/g, "-"))));
     return Array.from(tags).map((slug) => ({ slug }));
@@ -26,7 +26,7 @@ export async function generateStaticParams() {
 export default async function TagPage({ params }: Props) {
     const { slug } = await params;
     const tag = slug.replace(/-/g, " ");
-    const posts = getPostsByTag(tag);
+    const posts = await getPostsByTag(tag);
 
     return (
         <div className="max-w-8xl mx-auto px-4 sm:px-6 py-8">

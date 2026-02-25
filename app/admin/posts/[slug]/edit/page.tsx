@@ -1,11 +1,4 @@
-import { getAllPosts } from "@/lib/posts";
 import EditEditor from "./EditEditor";
-
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-    return [{ slug: "edit-post" }];
-}
 
 interface Props {
     params: Promise<{ slug: string }>;

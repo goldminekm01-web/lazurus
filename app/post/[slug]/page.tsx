@@ -21,7 +21,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
     if (!post) return { title: "Not Found" };
     return {
         title: post.metaTitle || post.title,
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-    return getAllSlugs().map((slug) => ({ slug }));
+    return (await getAllSlugs()).map((slug) => ({ slug }));
 }
 
 const MDXComponents = {
@@ -78,11 +78,11 @@ const MDXComponents = {
 
 export default async function ArticlePage({ params }: Props) {
     const { slug } = await params;
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
     if (!post) notFound();
 
     const author = post.author ? getAuthorBySlug(post.author) : null;
-    const related = getRelatedPosts(post, 3);
+    const related = await getRelatedPosts(post, 3);
     const catColor = post.categories[0] ? getCategoryColor(post.categories[0]) : "#e8a020";
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 

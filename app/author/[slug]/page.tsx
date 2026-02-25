@@ -29,7 +29,7 @@ export default async function AuthorPage({ params }: Props) {
     const author = getAuthorBySlug(slug);
     if (!author) notFound();
 
-    const posts = getPostsByAuthor(slug);
+    const posts = await getPostsByAuthor(slug);
 
     return (
         <div className="max-w-8xl mx-auto px-4 sm:px-6 py-8">
