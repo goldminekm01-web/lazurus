@@ -9,9 +9,10 @@ import ShareButtons from "@/components/ShareButtons";
 import ArticleCard from "@/components/ArticleCard";
 import TradingViewWidget from "@/components/TradingViewWidget";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { Clock, Calendar, Tag } from "lucide-react";
+import { Clock, Calendar, Tag, ExternalLink, Lock } from "lucide-react";
 import Link from "next/link";
 import SidebarNewsletter from "@/components/SidebarNewsletter";
+import LazarusLinks from "@/components/LazarusLinks";
 
 export const revalidate = 60;
 
@@ -211,6 +212,26 @@ export default async function ArticlePage({ params }: Props) {
                             </div>
                         )}
 
+                        {/* Additional Intel Section */}
+                        <div className="mt-12 p-6 bg-gray-900 rounded-2xl border border-gray-800">
+                            <h3 className="font-display font-bold text-white text-lg mb-4 flex items-center gap-2">
+                                <Lock className="w-5 h-5 text-[#e8a020]" />
+                                Deep Research: Lazarus Group Investigations
+                            </h3>
+                            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+                                Our forensics team has compiled extensive intelligence on the Lazarus Group as part of our ongoing blockchain security research. 
+                                For more context on these operations, consult the external research nodes.
+                            </p>
+                            <a 
+                                href="https://www.bugcrowd.com/glossary/lazarus-group/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#e8a020] text-black font-bold rounded-xl hover:bg-amber-400 transition-colors"
+                            >
+                                Open External Intel Node <ExternalLink className="w-4 h-4" />
+                            </a>
+                        </div>
+
                         {/* Bottom share */}
                         <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
                             <p className="text-sm text-gray-500">Found this useful? Share it.</p>
@@ -243,6 +264,9 @@ export default async function ArticlePage({ params }: Props) {
                                 </div>
                             </div>
                         )}
+
+                        {/* Lazarus Intel Ad Section */}
+                        <LazarusLinks />
 
                         {/* Newsletter sidebar CTA */}
                         <SidebarNewsletter />

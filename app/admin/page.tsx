@@ -91,9 +91,6 @@ export default function AdminPage() {
                             Sign In
                         </button>
                     </form>
-                    <p className="text-xs text-gray-400 text-center mt-4">
-                        Default: <code className="bg-gray-100 px-1 rounded">antigravity2024</code>
-                    </p>
                 </div>
             </div>
         );

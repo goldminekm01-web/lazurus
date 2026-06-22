@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Menu, X, TrendingUp, Zap } from "lucide-react";
+import { Search, Menu, X, TrendingUp, Zap, ChevronDown } from "lucide-react";
 
 const NAV_LINKS = [
     { label: "Markets", href: "/category/markets" },
@@ -11,6 +11,13 @@ const NAV_LINKS = [
     { label: "Opinion", href: "/category/opinion" },
     { label: "Trading", href: "/category/trading" },
     { label: "Crypto", href: "/category/crypto" },
+    { label: "About", href: "/about" },
+];
+
+const MORE_LINKS = [
+    { label: "About Us", href: "/about", desc: "Our mission & founders" },
+    { label: "Subscribe", href: "/subscribe", desc: "Get daily intelligence" },
+    { label: "Privacy Policy", href: "/privacy", desc: "How we handle your data" },
 ];
 
 export default function Header() {
@@ -18,7 +25,9 @@ export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
+    const [moreOpen, setMoreOpen] = useState(false);
     const searchRef = useRef<HTMLInputElement>(null);
+    const moreRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handler = () => setIsScrolled(window.scrollY > 20);
@@ -33,10 +42,21 @@ export default function Header() {
                 setSearchOpen(true);
                 setTimeout(() => searchRef.current?.focus(), 50);
             }
-            if (e.key === "Escape") setSearchOpen(false);
+            if (e.key === "Escape") { setSearchOpen(false); setMoreOpen(false); }
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
+    }, []);
+
+    // Close More dropdown on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+                setMoreOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
     }, []);
 
     const handleSearch = (e: React.FormEvent) => {
@@ -86,6 +106,34 @@ export default function Header() {
                                     {link.label}
                                 </Link>
                             ))}
+
+                            {/* More dropdown */}
+                            <div className="relative" ref={moreRef}>
+                                <button
+                                    onClick={() => setMoreOpen(!moreOpen)}
+                                    className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-[#0a0a0a] hover:bg-gray-50 rounded-md transition-colors"
+                                    aria-haspopup="true"
+                                    aria-expanded={moreOpen}
+                                >
+                                    More
+                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
+                                </button>
+                                {moreOpen && (
+                                    <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl border border-gray-100 shadow-xl py-1.5 z-50 animate-slide-up">
+                                        {MORE_LINKS.map((l) => (
+                                            <Link
+                                                key={l.href}
+                                                href={l.href}
+                                                onClick={() => setMoreOpen(false)}
+                                                className="flex flex-col px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <span className="text-sm font-medium text-gray-800">{l.label}</span>
+                                                <span className="text-xs text-gray-400">{l.desc}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </nav>
 
                         {/* Right Actions */}
@@ -153,6 +201,13 @@ export default function Header() {
                                     onClick={() => setMenuOpen(false)}
                                 >
                                     Subscribe
+                                </Link>
+                                <Link
+                                    href="/about"
+                                    className="flex-1 text-center px-3 py-2 border border-gray-200 text-gray-600 text-sm rounded-md"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    About
                                 </Link>
                                 <Link
                                     href="/admin"

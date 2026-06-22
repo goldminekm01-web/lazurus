@@ -9,8 +9,13 @@ function calcReadTime(text: string): number {
 
 export async function getAllPosts(): Promise<Post[]> {
     try {
+        // Add a 5-second buffer to handle potential clock skew between client and server
+        const now = new Date();
+        now.setSeconds(now.getSeconds() + 5);
+        const bufferNow = now.toISOString();
+
         const snapshot = await db.collection("posts")
-            .where("publishAt", "<=", new Date().toISOString())
+            .where("publishAt", "<=", bufferNow)
             .orderBy("publishAt", "desc")
             .get();
 

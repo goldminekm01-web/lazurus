@@ -90,32 +90,47 @@ export default function EditEditor({ slug }: EditEditorProps) {
         }));
     };
 
-    const handleSave = async () => {
+    const handleSave = async (isPublishing = false) => {
         if (!form.title || !form.slug || !form.content) {
             alert("Title, slug and content are required.");
             return;
         }
         setSaving(true);
         const token = sessionStorage.getItem("admin_token") || "";
+        
+        // If publishing, ensure publishAt is NOW
+        const publishDate = isPublishing ? new Date().toISOString() : form.publishAt;
+
         const payload = {
             ...form,
+            publishAt: publishDate,
             tags: form.tags
                 .split(",")
                 .map((t) => t.trim())
                 .filter(Boolean),
         };
-        const { content, ...frontmatter } = payload;
-        const res = await fetch("/api/posts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "x-admin-token": token },
-            body: JSON.stringify({ ...frontmatter, content, slug: form.slug }),
-        });
-        setSaving(false);
-        if (res.ok) {
-            router.push("/admin");
-            router.refresh();
-        } else {
-            alert("Error saving post.");
+        const { content, slug, ...frontmatter } = payload;
+
+        try {
+            const res = await fetch("/api/posts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "x-admin-token": token },
+                body: JSON.stringify({ slug, frontmatter, content }),
+            });
+            
+            if (res.ok) {
+                router.push("/admin");
+                router.refresh();
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                console.error("[Admin] Edit failed:", res.status, errData);
+                alert(`Failed to save changes: ${errData.error || res.statusText || "Unknown error"}`);
+            }
+        } catch (err: any) {
+            console.error("[Admin] Network/Runtime error:", err);
+            alert(`Error: ${err.message || "Failed to reach server"}`);
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -141,11 +156,18 @@ export default function EditEditor({ slug }: EditEditorProps) {
                         <Eye className="w-3.5 h-3.5" /> {preview ? "Edit" : "Preview"}
                     </button>
                     <button
-                        onClick={handleSave}
+                        onClick={() => handleSave(false)}
+                        disabled={saving}
+                        className="flex items-center gap-1.5 px-4 py-1.5 border border-white/20 text-white rounded text-sm font-medium hover:bg-white/10 disabled:opacity-60"
+                    >
+                        <Save className="w-3.5 h-3.5" /> {saving ? "Saving…" : "Save Draft"}
+                    </button>
+                    <button
+                        onClick={() => handleSave(true)}
                         disabled={saving}
                         className="flex items-center gap-1.5 px-4 py-1.5 bg-[#e8a020] text-[#0a0a0a] rounded text-sm font-bold hover:bg-[#d4911c] disabled:opacity-60"
                     >
-                        <Save className="w-3.5 h-3.5" /> {saving ? "Saving…" : "Save Changes"}
+                        <Save className="w-3.5 h-3.5" /> {saving ? "Publishing…" : "Publish Now"}
                     </button>
                 </div>
             </div>
@@ -234,7 +256,7 @@ export default function EditEditor({ slug }: EditEditorProps) {
                             Featured
                         </label>
                         <button
-                            onClick={handleSave}
+                            onClick={() => handleSave(false)}
                             disabled={saving}
                             className="w-full py-2 bg-[#0a0a0a] text-white text-sm font-bold rounded-lg hover:bg-gray-800 disabled:opacity-60"
                         >
