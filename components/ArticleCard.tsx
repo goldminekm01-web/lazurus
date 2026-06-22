@@ -10,6 +10,7 @@ interface ArticleCardProps {
     showExcerpt?: boolean;
     showAuthor?: boolean;
     horizontal?: boolean;
+    isNewest?: boolean;
 }
 
 export default function ArticleCard({
@@ -18,6 +19,7 @@ export default function ArticleCard({
     showExcerpt = false,
     showAuthor = false,
     horizontal = false,
+    isNewest = false,
 }: ArticleCardProps) {
     const catColor = post.categories[0]
         ? getCategoryColor(post.categories[0])
@@ -69,7 +71,9 @@ export default function ArticleCard({
         size === "lg" ? "aspect-[16/9]" : size === "sm" ? "aspect-[4/3]" : "aspect-[16/9]";
 
     return (
-        <article className="article-card flex flex-col bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-gray-200 shadow-card hover:shadow-card-hover transition-all duration-200">
+        <article className={`article-card flex flex-col bg-white rounded-xl overflow-hidden border transition-all duration-200 shadow-card hover:shadow-card-hover ${
+            isNewest ? "border-[#e8a020] ring-2 ring-[#e8a020]/30" : "border-gray-100 hover:border-gray-200"
+        }`}>
             {/* Thumbnail */}
             <Link
                 href={`/post/${post.slug}`}
@@ -84,15 +88,23 @@ export default function ArticleCard({
                     className="object-cover transition-transform duration-300 hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
-                {/* Category badge overlay */}
-                {post.categories[0] && (
-                    <span
-                        className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white"
-                        style={{ backgroundColor: catColor }}
-                    >
-                        {post.categories[0]}
-                    </span>
-                )}
+                {/* Badges overlay */}
+                <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                    {isNewest && (
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white bg-red-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                            New
+                        </span>
+                    )}
+                    {post.categories[0] && (
+                        <span
+                            className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white"
+                            style={{ backgroundColor: catColor }}
+                        >
+                            {post.categories[0]}
+                        </span>
+                    )}
+                </div>
             </Link>
 
             {/* Content */}

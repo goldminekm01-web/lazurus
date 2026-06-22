@@ -15,8 +15,9 @@ export default async function HomePage() {
     const latest = await getLatestPosts(12);
     const categories = getAllCategories();
 
-    const leadPost = featured[0] || allPosts[0];
-    const secondaryPosts = featured.slice(1, 4);
+    // Always highlight the newest published post as the lead story
+    const leadPost = allPosts[0];
+    const secondaryPosts = allPosts.slice(1, 4);
 
     if (!leadPost) {
         return (
@@ -60,8 +61,8 @@ export default async function HomePage() {
                         </Link>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {latest.map((post) => (
-                            <ArticleCard key={post.slug} post={post} showAuthor />
+                        {latest.map((post, i) => (
+                            <ArticleCard key={post.slug} post={post} showAuthor isNewest={i === 0} />
                         ))}
                     </div>
                 </section>
