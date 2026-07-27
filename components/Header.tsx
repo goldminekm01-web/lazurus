@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Menu, X, TrendingUp, Zap, ChevronDown } from "lucide-react";
+import { Search, Menu, X, TrendingUp, Zap, ChevronDown, Wallet } from "lucide-react";
+import WalletModal from "@/components/WalletModal";
 
 const NAV_LINKS = [
     { label: "Markets", href: "/category/markets" },
@@ -26,6 +27,7 @@ export default function Header() {
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const [moreOpen, setMoreOpen] = useState(false);
+    const [walletOpen, setWalletOpen] = useState(false);
     const searchRef = useRef<HTMLInputElement>(null);
     const moreRef = useRef<HTMLDivElement>(null);
 
@@ -159,13 +161,14 @@ export default function Header() {
                                 Subscribe
                             </Link>
 
-                            {/* Admin link */}
-                            <Link
-                                href="/admin"
-                                className="hidden md:inline-flex items-center px-3 py-1.5 border border-gray-200 text-gray-500 text-sm rounded-md hover:border-gray-400 hover:text-gray-700 transition-colors"
+                            {/* Wallet button */}
+                            <button
+                                onClick={() => setWalletOpen(true)}
+                                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#e8a020]/40 text-[#e8a020] text-sm font-semibold rounded-md hover:bg-[#e8a020]/10 hover:border-[#e8a020] transition-colors"
                             >
-                                Editor
-                            </Link>
+                                <Wallet className="w-3.5 h-3.5" />
+                                Wallet
+                            </button>
 
                             {/* Mobile hamburger */}
                             <button
@@ -209,13 +212,12 @@ export default function Header() {
                                 >
                                     About
                                 </Link>
-                                <Link
-                                    href="/admin"
-                                    className="flex-1 text-center px-3 py-2 border border-gray-200 text-gray-600 text-sm rounded-md"
-                                    onClick={() => setMenuOpen(false)}
+                                <button
+                                    onClick={() => { setMenuOpen(false); setWalletOpen(true); }}
+                                    className="flex-1 text-center px-3 py-2 border border-[#e8a020]/40 text-[#e8a020] text-sm font-semibold rounded-md hover:bg-[#e8a020]/10 transition-colors"
                                 >
-                                    Editor
-                                </Link>
+                                    Wallet
+                                </button>
                             </div>
                         </nav>
                     </div>
@@ -250,6 +252,7 @@ export default function Header() {
                     </div>
                 </div>
             )}
+            <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
         </>
     );
 }
