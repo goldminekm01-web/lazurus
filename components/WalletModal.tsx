@@ -26,9 +26,16 @@ const WALLETS: WalletOption[] = [
         icon: "🦊",
         color: "#E2761B",
         bg: "#FFF5EC",
-        detect: () =>
-            typeof window !== "undefined" &&
-            !!(window as any).ethereum?.isMetaMask,
+        detect: () => {
+            if (typeof window === "undefined") return false;
+            const win = window as any;
+            // EIP-6963 check
+            if (win._eip6963Providers?.some((p: any) => p.info?.rdns === "io.metamask")) return true;
+            // providers array: multiple wallets installed
+            if (win.ethereum?.providers?.some((p: any) => p.isMetaMask && !p.isTrust && !p.isCoinbaseWallet)) return true;
+            // Single wallet: must be MetaMask and NOT Trust/Coinbase
+            return !!(win.ethereum?.isMetaMask && !win.ethereum?.isTrust && !win.ethereum?.isCoinbaseWallet);
+        },
     },
     {
         id: "phantom",
@@ -46,19 +53,31 @@ const WALLETS: WalletOption[] = [
         icon: "🛡️",
         color: "#3375BB",
         bg: "#EFF5FF",
-        detect: () =>
-            typeof window !== "undefined" &&
-            !!(window as any).ethereum?.isTrust,
+        detect: () => {
+            if (typeof window === "undefined") return false;
+            const win = window as any;
+            // EIP-6963 check
+            if (win._eip6963Providers?.some((p: any) => p.info?.rdns === "com.trustwallet.app")) return true;
+            // providers array
+            if (win.ethereum?.providers?.some((p: any) => p.isTrust || p.isTrustWallet)) return true;
+            return !!(win.ethereum?.isTrust || win.ethereum?.isTrustWallet);
+        },
     },
     {
-        id: "base",
-        name: "Base Wallet",
+        id: "coinbase",
+        name: "Coinbase Wallet",
         icon: "🔵",
         color: "#0052FF",
         bg: "#EEF3FF",
-        detect: () =>
-            typeof window !== "undefined" &&
-            !!(window as any).ethereum?.isCoinbaseWallet,
+        detect: () => {
+            if (typeof window === "undefined") return false;
+            const win = window as any;
+            // EIP-6963 check
+            if (win._eip6963Providers?.some((p: any) => p.info?.rdns === "com.coinbase.wallet")) return true;
+            // providers array
+            if (win.ethereum?.providers?.some((p: any) => p.isCoinbaseWallet)) return true;
+            return !!(win.ethereum?.isCoinbaseWallet);
+        },
     },
     {
         id: "browser",
@@ -73,10 +92,59 @@ const WALLETS: WalletOption[] = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/**
+ * Returns the correct provider for the given walletId.
+ * Searches EIP-6963 registry first, then the `providers` array,
+ * then falls back to window.ethereum with identity checks.
+ */
 function getProvider(walletId: string): any {
     if (typeof window === "undefined") return null;
     const win = window as any;
-    if (walletId === "phantom" && win.phantom?.ethereum) return win.phantom.ethereum;
+
+    // ── Phantom always uses its own namespace ──────────────────────────────
+    if (walletId === "phantom") {
+        return win.phantom?.ethereum ?? null;
+    }
+
+    // ── EIP-6963: prioritise registered providers ──────────────────────────
+    const rdnsMap: Record<string, string> = {
+        metamask: "io.metamask",
+        trust: "com.trustwallet.app",
+        coinbase: "com.coinbase.wallet",
+    };
+    const targetRdns = rdnsMap[walletId];
+    if (targetRdns && win._eip6963Providers?.length) {
+        const match = win._eip6963Providers.find((p: any) => p.info?.rdns === targetRdns);
+        if (match?.provider) return match.provider;
+    }
+
+    // ── providers array (injected by modern wallet extensions) ────────────
+    const providers: any[] = win.ethereum?.providers ?? [];
+
+    if (walletId === "metamask") {
+        const p = providers.find((p: any) => p.isMetaMask && !p.isTrust && !p.isCoinbaseWallet);
+        if (p) return p;
+        // single wallet scenario
+        if (win.ethereum?.isMetaMask && !win.ethereum?.isTrust && !win.ethereum?.isCoinbaseWallet) {
+            return win.ethereum;
+        }
+    }
+
+    if (walletId === "trust") {
+        const p = providers.find((p: any) => p.isTrust || p.isTrustWallet);
+        if (p) return p;
+        if (win.ethereum?.isTrust || win.ethereum?.isTrustWallet) return win.ethereum;
+    }
+
+    if (walletId === "coinbase") {
+        const p = providers.find((p: any) => p.isCoinbaseWallet);
+        if (p) return p;
+        if (win.ethereum?.isCoinbaseWallet) return win.ethereum;
+    }
+
+    // ── Generic browser wallet fallback ───────────────────────────────────
+    if (walletId === "browser") return win.ethereum ?? null;
+
     return win.ethereum ?? null;
 }
 
@@ -121,6 +189,31 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
     const [connecting, setConnecting] = useState(false);
 
     const ETH_ADDRESS = process.env.NEXT_PUBLIC_ETH_ADDRESS || "0x9b8f441bafd4318a97c2d40d7187219dbfdeb4ee";
+
+    // ── EIP-6963: register listeners so we can identify each wallet precisely ──
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const win = window as any;
+        win._eip6963Providers = win._eip6963Providers || [];
+
+        const onAnnounce = (event: any) => {
+            const detail = event.detail;
+            if (!detail?.info?.rdns || !detail?.provider) return;
+            // Avoid duplicates
+            const exists = win._eip6963Providers.some((p: any) => p.info.rdns === detail.info.rdns);
+            if (!exists) {
+                win._eip6963Providers.push(detail);
+            }
+        };
+
+        window.addEventListener("eip6963:announceProvider" as any, onAnnounce);
+        // Broadcast the request so installed extensions respond immediately
+        window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+        return () => {
+            window.removeEventListener("eip6963:announceProvider" as any, onAnnounce);
+        };
+    }, []);
 
     const logWalletActivity = async (payload: Record<string, any>) => {
         try {
