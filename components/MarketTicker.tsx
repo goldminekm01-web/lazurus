@@ -35,13 +35,57 @@ export default function MarketTicker() {
     const [quotes, setQuotes] = useState<MarketQuote[]>(STATIC_QUOTES);
     const [isPaused, setIsPaused] = useState(false);
 
-    // Simulate live updates
+    // Fetch live crypto prices from Binance
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (!isPaused) setQuotes((prev) => addJitter(prev));
-        }, 3000);
-        return () => clearInterval(interval);
-    }, [isPaused]);
+        let active = true;
+
+        const fetchPrices = async () => {
+            try {
+                // Fetch 24h ticker data for all symbols from Binance
+                const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                // Extract only top pairs to display
+                const PAIRS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT"];
+                const SYMBOL_MAP: Record<string, string> = {
+                    BTCUSDT: "BTC",
+                    ETHUSDT: "ETH", 
+                    SOLUSDT: "SOL",
+                    BNBUSDT: "BNB",
+                    XRPUSDT: "XRP",
+                    DOGEUSDT: "DOGE",
+                    ADAUSDT: "ADA"
+                };
+
+                const liveQuotes: MarketQuote[] = data
+                    .filter((item: any) => PAIRS.includes(item.symbol))
+                    .map((item: any) => ({
+                        symbol: SYMBOL_MAP[item.symbol],
+                        name: SYMBOL_MAP[item.symbol],
+                        price: parseFloat(item.lastPrice),
+                        change: parseFloat(item.priceChange),
+                        changePercent: parseFloat(item.priceChangePercent)
+                    }));
+                
+                // Maintain order given by PAIRS array
+                liveQuotes.sort((a, b) => PAIRS.indexOf(a.symbol + "USDT") - PAIRS.indexOf(b.symbol + "USDT"));
+
+                if (active && liveQuotes.length > 0) {
+                    setQuotes(liveQuotes);
+                }
+            } catch (err) {
+                // Silently fallback to static quotes on fetch fail
+            }
+        };
+
+        fetchPrices();
+        const interval = setInterval(fetchPrices, 10000); // update every 10s
+        return () => {
+            active = false;
+            clearInterval(interval);
+        };
+    }, []);
 
     // Create duplicate array for seamless loop
     const doubled = [...quotes, ...quotes];
