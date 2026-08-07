@@ -24,13 +24,7 @@ declare global {
             ) => void;
             showWidget?: () => void;
             maximize?: () => void;
-            minimize?: () => void;
-            toggle?: () => void;
             onLoad?: () => void;
-            onChatMinimized?: () => void;
-            onChatMaximized?: () => void;
-            isChatMinimized?: () => boolean;
-            isChatMaximized?: () => boolean;
             [key: string]: any;
         };
         Tawk_LoadStart?: Date;
@@ -40,22 +34,6 @@ declare global {
 export default function TawkWidget() {
     const geoRef = useRef<GeoInfo>({});
     const loadedRef = useRef(false);
-    const keepOpenRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    // Re-maximize if the chat gets minimized
-    const ensureChatOpen = () => {
-        try {
-            const api = window.Tawk_API;
-            if (!api) return;
-            if (typeof api.isChatMinimized === "function" && api.isChatMinimized()) {
-                api.maximize?.();
-            } else if (typeof api.maximize === "function") {
-                api.maximize();
-            }
-        } catch (e) {
-            // Ignore if api not ready
-        }
-    };
 
     useEffect(() => {
         if (typeof window === "undefined" || loadedRef.current) return;
@@ -66,60 +44,59 @@ export default function TawkWidget() {
             .then((res) => res.json())
             .then((data) => {
                 geoRef.current = data;
-                if (window.Tawk_API && typeof window.Tawk_API.setAttributes === "function") {
-                    window.Tawk_API.setAttributes({
-                        country: data.country || "Unknown",
-                        city: data.city || "Unknown",
-                        ip: data.ip || "Unknown",
-                        timezone: data.timezone || "",
-                    });
+                // Only set attributes if Tawk is already loaded & connected
+                if (
+                    window.Tawk_API &&
+                    typeof window.Tawk_API.setAttributes === "function"
+                ) {
+                    try {
+                        window.Tawk_API.setAttributes({
+                            country: data.country || "Unknown",
+                            city: data.city || "Unknown",
+                            ip: data.ip || "Unknown",
+                            timezone: data.timezone || "",
+                        });
+                    } catch (e) {}
                 }
             })
             .catch(() => {});
 
-        // Pre-configure Tawk_API before script loads
+        // Pre-configure Tawk_API BEFORE the script loads
+        // (Tawk reads these at boot time — do not mutate after script loads)
         window.Tawk_API = window.Tawk_API || {};
         window.Tawk_LoadStart = new Date();
 
         const previousOnLoad = window.Tawk_API.onLoad;
 
         window.Tawk_API.onLoad = function () {
-            // Run any existing onLoad hook
+            // Preserve any existing onLoad hook
             if (typeof previousOnLoad === "function") {
                 try { previousOnLoad(); } catch (e) {}
             }
 
-            // Show and maximize chat immediately
+            // Show widget (in case it was hidden) — called only ONCE, on initial load
             try { window.Tawk_API?.showWidget?.(); } catch (e) {}
+
+            // Maximize the chat box so it opens fully on page load
+            // We call this once and never again — no polling, no interval
             try { window.Tawk_API?.maximize?.(); } catch (e) {}
 
-            // Sync geo attributes
-            if (geoRef.current.country && window.Tawk_API?.setAttributes) {
+            // Push visitor geo attributes after connection is stable
+            const geo = geoRef.current;
+            if (geo.country && window.Tawk_API?.setAttributes) {
                 try {
                     window.Tawk_API.setAttributes({
-                        country: geoRef.current.country,
-                        city: geoRef.current.city,
-                        ip: geoRef.current.ip,
+                        country: geo.country,
+                        city: geo.city || "",
+                        ip: geo.ip || "",
+                        timezone: geo.timezone || "",
+                        userLanguage: navigator.language,
                     });
                 } catch (e) {}
             }
-
-            // Re-maximize whenever the user minimizes the chat
-            if (window.Tawk_API) {
-                window.Tawk_API.onChatMinimized = function () {
-                    // Small delay to let Tawk finish its own animation, then re-open
-                    setTimeout(() => {
-                        try { window.Tawk_API?.maximize?.(); } catch (e) {}
-                    }, 200);
-                };
-            }
-
-            // Heartbeat: every 2 seconds check if minimized and re-open
-            if (keepOpenRef.current) clearInterval(keepOpenRef.current);
-            keepOpenRef.current = setInterval(ensureChatOpen, 2000);
         };
 
-        // Inject Tawk script if not already present
+        // Inject Tawk script once
         if (!document.getElementById("tawk-script")) {
             const s1 = document.createElement("script");
             s1.id = "tawk-script";
@@ -135,7 +112,7 @@ export default function TawkWidget() {
             }
         }
 
-        // Global link click listener — sends notification to Tawk admin
+        // Global link click tracker — sends event to Tawk admin panel
         const handleGlobalClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (!target) return;
@@ -166,7 +143,10 @@ export default function TawkWidget() {
                 "Time": new Date().toLocaleTimeString(),
             };
 
-            if (window.Tawk_API && typeof window.Tawk_API.addEvent === "function") {
+            if (
+                window.Tawk_API &&
+                typeof window.Tawk_API.addEvent === "function"
+            ) {
                 try {
                     window.Tawk_API.setAttributes?.({
                         lastClickedLink: href,
@@ -174,7 +154,7 @@ export default function TawkWidget() {
                     });
                     window.Tawk_API.addEvent("Link Clicked", payload);
                 } catch (e) {
-                    console.error("Tawk addEvent error:", e);
+                    // Silently ignore if Tawk is mid-connection
                 }
             }
         };
@@ -183,7 +163,6 @@ export default function TawkWidget() {
 
         return () => {
             document.removeEventListener("click", handleGlobalClick, true);
-            if (keepOpenRef.current) clearInterval(keepOpenRef.current);
         };
     }, []);
 
