@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import CategoryStrip from "@/components/CategoryStrip";
 import ArticleCard from "@/components/ArticleCard";
 import NewsletterCTA from "@/components/NewsletterCTA";
+import TrustSignals from "@/components/TrustSignals";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -33,6 +34,9 @@ export default async function HomePage() {
             <div className="max-w-8xl mx-auto px-4 sm:px-6 pt-4">
                 <Hero leadPost={leadPost} secondaryPosts={secondaryPosts} />
             </div>
+
+            {/* Trust Signals — stats, testimonials, media mentions */}
+            <TrustSignals />
 
             <div className="max-w-8xl mx-auto px-4 sm:px-6">
                 {/* Category Strips */}
