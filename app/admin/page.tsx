@@ -18,8 +18,24 @@ import {
     Clock,
     RefreshCw,
     Coins,
+    Users,
+    MapPin,
+    Monitor,
 } from "lucide-react";
 import type { Post } from "@/lib/types";
+
+interface VisitRecord {
+    id: string;
+    ip: string;
+    country: string;
+    city: string;
+    region: string;
+    timezone: string;
+    page: string;
+    userAgent: string;
+    referrer: string;
+    timestamp: string;
+}
 
 interface WalletRecord {
     id: string;
@@ -46,7 +62,11 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(false);
 
     // Tab control
-    const [activeTab, setActiveTab] = useState<"posts" | "wallets">("posts");
+    const [activeTab, setActiveTab] = useState<"posts" | "wallets" | "visits">("posts");
+
+    // Visitor tracking state
+    const [visits, setVisits] = useState<VisitRecord[]>([]);
+    const [loadingVisits, setLoadingVisits] = useState(false);
 
     // Wallet activity state
     const [wallets, setWallets] = useState<WalletRecord[]>([]);
@@ -85,6 +105,23 @@ export default function AdminPage() {
         }
     }, []);
 
+    const loadVisitData = useCallback(async (token: string) => {
+        setLoadingVisits(true);
+        try {
+            const res = await fetch("/api/visits", {
+                headers: { "x-admin-token": token },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setVisits(data.visits || []);
+            }
+        } catch (e) {
+            console.error("Failed to load visit data", e);
+        } finally {
+            setLoadingVisits(false);
+        }
+    }, []);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -97,6 +134,7 @@ export default function AdminPage() {
             setAuthed(true);
             setPosts(data.posts || []);
             loadWalletData(password);
+            loadVisitData(password);
         } else {
             setError("Incorrect password. Check your ADMIN_PASSWORD environment variable.");
         }
@@ -116,8 +154,9 @@ export default function AdminPage() {
                 .finally(() => setLoading(false));
 
             loadWalletData(token);
+            loadVisitData(token);
         }
-    }, [loadWalletData]);
+    }, [loadWalletData, loadVisitData]);
 
     const handleDelete = async (slug: string) => {
         if (!confirm(`Delete "${slug}"? This cannot be undone.`)) return;
@@ -142,6 +181,7 @@ export default function AdminPage() {
         const token = sessionStorage.getItem("admin_token");
         if (token) {
             loadWalletData(token);
+            loadVisitData(token);
         }
     };
 
@@ -216,6 +256,16 @@ export default function AdminPage() {
                             }`}
                         >
                             👛 Wallet Activity & Transfers
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("visits")}
+                            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${
+                                activeTab === "visits"
+                                    ? "border-[#e8a020] text-white"
+                                    : "border-transparent text-gray-400 hover:text-white"
+                            }`}
+                        >
+                            🌍 Visitor Log
                         </button>
                     </div>
 
@@ -582,6 +632,112 @@ export default function AdminPage() {
                                 )}
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* ── Visitor Log Tab ─────────────────────────────────────────── */}
+                {activeTab === "visits" && (
+                    <div className="p-6">
+                        {/* Stats row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium">Total Visits Logged</p>
+                                    <p className="text-2xl font-bold text-gray-900">{visits.length}</p>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                                    <Globe className="w-5 h-5 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium">Unique Countries</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {new Set(visits.map((v) => v.country).filter(Boolean)).size}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                                    <MapPin className="w-5 h-5 text-orange-500" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium">Unique IPs</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {new Set(visits.map((v) => v.ip).filter(Boolean)).size}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Visit log table */}
+                        {loadingVisits ? (
+                            <div className="flex items-center justify-center h-40 text-gray-400">
+                                <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading visitors...
+                            </div>
+                        ) : visits.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-40 text-gray-400">
+                                <Globe className="w-10 h-10 mb-2 opacity-30" />
+                                <p className="text-sm">No visits logged yet. Visits appear here as users land on the site.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">IP Address</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Location</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Page</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Referrer</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Device</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {visits.map((v) => {
+                                            const ua = v.userAgent || "";
+                                            const isMobile = /Mobile|Android|iPhone/i.test(ua);
+                                            const browser = ua.match(/(Chrome|Firefox|Safari|Edge|Opera)[/\s]([\d.]+)/i);
+                                            return (
+                                                <tr key={v.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-4 py-3 font-mono text-xs text-gray-800 font-semibold">{v.ip || "—"}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                                            <span className="text-xs text-gray-700">
+                                                                {[v.city, v.country].filter(Boolean).join(", ") || "Unknown"}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 font-mono text-xs text-indigo-600 max-w-[160px] truncate" title={v.page}>
+                                                        {v.page || "/"}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-xs text-gray-400 max-w-[130px] truncate" title={v.referrer}>
+                                                        {v.referrer ? new URL(v.referrer).hostname : <span className="italic">Direct</span>}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium ${
+                                                            isMobile ? "bg-purple-50 text-purple-700" : "bg-gray-100 text-gray-600"
+                                                        }`}>
+                                                            <Monitor className="w-3 h-3" />
+                                                            {isMobile ? "Mobile" : "Desktop"}
+                                                            {browser ? ` · ${browser[1]}` : ""}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-xs text-gray-400 font-mono">
+                                                        {new Date(v.timestamp).toLocaleTimeString()}<br/>
+                                                        {new Date(v.timestamp).toLocaleDateString()}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

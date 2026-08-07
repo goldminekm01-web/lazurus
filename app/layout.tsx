@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import BreakingBar from "@/components/BreakingBar";
 import MarketTicker from "@/components/MarketTicker";
 import TawkWidget from "@/components/TawkWidget";
+import VisitorTracker from "@/components/VisitorTracker";
 
 export const metadata: Metadata = {
     title: {
@@ -38,6 +39,7 @@ export default function RootLayout({
         <html lang="en">
             <body className="min-h-screen bg-white text-gray-900 antialiased">
                 <TawkWidget />
+                <VisitorTracker />
                 <BreakingBar />
                 <Header />
                 <MarketTicker />
