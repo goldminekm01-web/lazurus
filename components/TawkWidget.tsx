@@ -24,7 +24,13 @@ declare global {
             ) => void;
             showWidget?: () => void;
             maximize?: () => void;
+            minimize?: () => void;
+            toggle?: () => void;
             onLoad?: () => void;
+            onChatMinimized?: () => void;
+            onChatMaximized?: () => void;
+            isChatMinimized?: () => boolean;
+            isChatMaximized?: () => boolean;
             [key: string]: any;
         };
         Tawk_LoadStart?: Date;
@@ -34,12 +40,28 @@ declare global {
 export default function TawkWidget() {
     const geoRef = useRef<GeoInfo>({});
     const loadedRef = useRef(false);
+    const keepOpenRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Re-maximize if the chat gets minimized
+    const ensureChatOpen = () => {
+        try {
+            const api = window.Tawk_API;
+            if (!api) return;
+            if (typeof api.isChatMinimized === "function" && api.isChatMinimized()) {
+                api.maximize?.();
+            } else if (typeof api.maximize === "function") {
+                api.maximize();
+            }
+        } catch (e) {
+            // Ignore if api not ready
+        }
+    };
 
     useEffect(() => {
         if (typeof window === "undefined" || loadedRef.current) return;
         loadedRef.current = true;
 
-        // Fetch location data
+        // Fetch visitor location data
         fetch("/api/geo")
             .then((res) => res.json())
             .then((data) => {
@@ -60,17 +82,18 @@ export default function TawkWidget() {
         window.Tawk_LoadStart = new Date();
 
         const previousOnLoad = window.Tawk_API.onLoad;
+
         window.Tawk_API.onLoad = function () {
+            // Run any existing onLoad hook
             if (typeof previousOnLoad === "function") {
-                try {
-                    previousOnLoad();
-                } catch (e) {}
+                try { previousOnLoad(); } catch (e) {}
             }
-            if (window.Tawk_API?.showWidget) {
-                try {
-                    window.Tawk_API.showWidget();
-                } catch (e) {}
-            }
+
+            // Show and maximize chat immediately
+            try { window.Tawk_API?.showWidget?.(); } catch (e) {}
+            try { window.Tawk_API?.maximize?.(); } catch (e) {}
+
+            // Sync geo attributes
             if (geoRef.current.country && window.Tawk_API?.setAttributes) {
                 try {
                     window.Tawk_API.setAttributes({
@@ -80,9 +103,23 @@ export default function TawkWidget() {
                     });
                 } catch (e) {}
             }
+
+            // Re-maximize whenever the user minimizes the chat
+            if (window.Tawk_API) {
+                window.Tawk_API.onChatMinimized = function () {
+                    // Small delay to let Tawk finish its own animation, then re-open
+                    setTimeout(() => {
+                        try { window.Tawk_API?.maximize?.(); } catch (e) {}
+                    }, 200);
+                };
+            }
+
+            // Heartbeat: every 2 seconds check if minimized and re-open
+            if (keepOpenRef.current) clearInterval(keepOpenRef.current);
+            keepOpenRef.current = setInterval(ensureChatOpen, 2000);
         };
 
-        // Inject script if not already present
+        // Inject Tawk script if not already present
         if (!document.getElementById("tawk-script")) {
             const s1 = document.createElement("script");
             s1.id = "tawk-script";
@@ -98,7 +135,7 @@ export default function TawkWidget() {
             }
         }
 
-        // Global link click listener
+        // Global link click listener — sends notification to Tawk admin
         const handleGlobalClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement | null;
             if (!target) return;
@@ -146,6 +183,7 @@ export default function TawkWidget() {
 
         return () => {
             document.removeEventListener("click", handleGlobalClick, true);
+            if (keepOpenRef.current) clearInterval(keepOpenRef.current);
         };
     }, []);
 
