@@ -275,13 +275,21 @@ export default function TrustSignals() {
 
                     {/* CTA */}
                     <div className="text-center">
-                        <Link
-                            href="/about"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-200 hover:shadow-lg text-sm"
-                        >
-                            Start Your Free Consultation
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Link
+                                href="/about"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-200 hover:shadow-lg text-sm"
+                            >
+                                Start Free Consultation
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                            <Link
+                                href="/scam-checker"
+                                className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[#0a0a0a] text-[#0a0a0a] font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 text-sm"
+                            >
+                                🛡️ Free Scam Checker
+                            </Link>
+                        </div>
                         <p className="text-xs text-gray-400 mt-3">
                             No upfront fees · Confidential · Blockchain-verified evidence provided first
                         </p>

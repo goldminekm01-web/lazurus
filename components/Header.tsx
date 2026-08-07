@@ -16,6 +16,7 @@ const NAV_LINKS = [
 ];
 
 const MORE_LINKS = [
+    { label: "🛡️ Free Scam Checker", href: "/scam-checker", desc: "Check wallets & websites for fraud" },
     { label: "About Us", href: "/about", desc: "Our mission & founders" },
     { label: "Subscribe", href: "/subscribe", desc: "Get daily intelligence" },
     { label: "Privacy Policy", href: "/privacy", desc: "How we handle your data" },
