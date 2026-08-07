@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Menu, X, TrendingUp, Zap, ChevronDown, Wallet } from "lucide-react";
+import { Search, Menu, X, TrendingUp, ShieldCheck, ChevronDown, Wallet } from "lucide-react";
 import WalletModal from "@/components/WalletModal";
 
 const NAV_LINKS = [
@@ -153,13 +153,13 @@ export default function Header() {
                                 <Search className="w-4 h-4" />
                             </button>
 
-                            {/* Subscribe */}
+                            {/* Scam Checker */}
                             <Link
-                                href="/subscribe"
+                                href="/scam-checker"
                                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0a] text-white text-sm font-semibold rounded-md hover:bg-gray-800 transition-colors"
                             >
-                                <Zap className="w-3.5 h-3.5 text-[#e8a020]" />
-                                Subscribe
+                                <ShieldCheck className="w-3.5 h-3.5 text-[#e8a020]" />
+                                Scam Checker
                             </Link>
 
                             {/* Wallet button */}
@@ -200,11 +200,11 @@ export default function Header() {
                             ))}
                             <div className="pt-2 mt-1 border-t border-gray-100 flex gap-2">
                                 <Link
-                                    href="/subscribe"
+                                    href="/scam-checker"
                                     className="flex-1 text-center px-3 py-2 bg-[#0a0a0a] text-white text-sm font-semibold rounded-md"
                                     onClick={() => setMenuOpen(false)}
                                 >
-                                    Subscribe
+                                    🛡️ Scam Checker
                                 </Link>
                                 <Link
                                     href="/about"
