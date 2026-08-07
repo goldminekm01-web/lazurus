@@ -13,7 +13,6 @@ function useCounter(target: number, duration = 1800, start = false) {
         const step = (timestamp: number) => {
             if (!startTime) startTime = timestamp;
             const progress = Math.min((timestamp - startTime) / duration, 1);
-            // Ease-out
             const eased = 1 - Math.pow(1 - progress, 3);
             setCount(Math.floor(eased * target));
             if (progress < 1) requestAnimationFrame(step);
@@ -30,24 +29,45 @@ interface StatProps {
     suffix: string;
     prefix?: string;
     label: string;
-    color: string;
+    sublabel: string;
+    accent: string;
+    bg: string;
     started: boolean;
 }
 
-function StatCard({ icon, value, suffix, prefix = "", label, color, started }: StatProps) {
+function StatCard({ icon, value, suffix, prefix = "", label, sublabel, accent, bg, started }: StatProps) {
     const count = useCounter(value, 1800, started);
     return (
-        <div className="flex flex-col items-center text-center group">
+        <div
+            className="relative flex flex-col items-start p-6 sm:p-8 rounded-2xl overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            style={{ background: bg, border: `1.5px solid ${accent}22` }}
+        >
+            {/* Glow blob */}
             <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110"
-                style={{ background: `${color}18` }}
+                className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-20 blur-2xl pointer-events-none"
+                style={{ background: accent }}
+            />
+            {/* Icon pill */}
+            <div
+                className="flex items-center justify-center w-12 h-12 rounded-xl mb-5"
+                style={{ background: `${accent}20` }}
             >
-                <span style={{ color }}>{icon}</span>
+                <span style={{ color: accent }}>{icon}</span>
             </div>
-            <div className="text-3xl sm:text-4xl font-bold text-[#0a0a0a] font-display tracking-tight">
+            {/* Number */}
+            <div
+                className="text-4xl sm:text-5xl font-black tracking-tight leading-none mb-1"
+                style={{ color: accent }}
+            >
                 {prefix}{count.toLocaleString()}{suffix}
             </div>
-            <div className="text-xs sm:text-sm text-gray-500 font-medium mt-1 leading-snug">{label}</div>
+            {/* Label */}
+            <div className="text-[#0a0a0a] font-bold text-sm sm:text-base mt-2 leading-snug">
+                {label}
+            </div>
+            <div className="text-gray-400 text-xs mt-1 leading-relaxed">
+                {sublabel}
+            </div>
         </div>
     );
 }
@@ -125,28 +145,32 @@ export default function TrustSignals() {
             id="trust-signals"
         >
             {/* ── Stats Bar ─────────────────────────────────────────────────── */}
-            <div className="bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] py-12 sm:py-16">
+            <div className="py-14 sm:py-20 bg-white">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                    {/* Header */}
                     <div className="text-center mb-10">
                         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e8a020]/10 text-[#e8a020] text-xs font-bold uppercase tracking-widest mb-3">
                             <ShieldCheck className="w-3.5 h-3.5" />
                             Proven Track Record
                         </span>
-                        <h2 className="font-display text-white text-2xl sm:text-3xl font-bold">
+                        <h2 className="font-display text-[#0a0a0a] text-2xl sm:text-3xl font-bold">
                             The numbers don&apos;t lie
                         </h2>
-                        <p className="text-gray-400 text-sm mt-2">
-                            Real results from real clients. Verified and independently audited.
+                        <p className="text-gray-500 text-sm mt-2 max-w-md mx-auto">
+                            Real results from real clients — verified and independently audited.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+                    {/* Stat cards grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                         <StatCard
                             icon={<ShieldCheck className="w-6 h-6" />}
                             value={847}
                             suffix="+"
-                            label="Cases Successfully Resolved"
-                            color="#00c47a"
+                            label="Cases Resolved"
+                            sublabel="Successfully completed crypto recovery cases"
+                            accent="#00c47a"
+                            bg="#f0fdf8"
                             started={started}
                         />
                         <StatCard
@@ -154,24 +178,30 @@ export default function TrustSignals() {
                             value={14}
                             suffix="M+"
                             prefix="$"
-                            label="Total Crypto Recovered"
-                            color="#e8a020"
+                            label="Crypto Recovered"
+                            sublabel="Total value returned to scam victims"
+                            accent="#e8a020"
+                            bg="#fffbeb"
                             started={started}
                         />
                         <StatCard
                             icon={<Globe className="w-6 h-6" />}
                             value={47}
                             suffix="+"
-                            label="Countries Served Worldwide"
-                            color="#0066ff"
+                            label="Countries Served"
+                            sublabel="Global reach across all major continents"
+                            accent="#0066ff"
+                            bg="#eff6ff"
                             started={started}
                         />
                         <StatCard
                             icon={<Star className="w-6 h-6" />}
                             value={98}
                             suffix="%"
-                            label="Client Satisfaction Rate"
-                            color="#e8a020"
+                            label="Satisfaction Rate"
+                            sublabel="Clients who rated their experience 5 stars"
+                            accent="#8b5cf6"
+                            bg="#f5f3ff"
                             started={started}
                         />
                     </div>
