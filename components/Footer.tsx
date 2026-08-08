@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { TrendingUp, Twitter, Linkedin, Github, Mail } from "lucide-react";
+import { TrendingUp, Twitter, Linkedin, Github, Mail, CheckCircle2, Loader2 } from "lucide-react";
 
 const FOOTER_LINKS = {
     Markets: [
@@ -25,6 +26,26 @@ const FOOTER_LINKS = {
 };
 
 export default function Footer() {
+    const [email, setEmail] = useState("");
+    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email.trim()) return;
+        setStatus("loading");
+        try {
+            const res = await fetch("/api/subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email.trim() }),
+            });
+            if (!res.ok) throw new Error();
+            setStatus("success");
+        } catch {
+            setStatus("error");
+        }
+    };
+
     return (
         <footer className="bg-[#0a0a0a] text-gray-300 pt-16 pb-8 mt-20">
             <div className="max-w-8xl mx-auto px-4 sm:px-6">
@@ -52,25 +73,43 @@ export default function Footer() {
                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                                 Newsletter
                             </p>
-                            <form
-                                onSubmit={(e) => e.preventDefault()}
-                                className="flex gap-2"
-                                aria-label="Newsletter signup"
-                            >
-                                <input
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    className="flex-1 px-3 py-2 bg-white/10 border border-white/10 rounded-md text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e8a020] transition-colors"
-                                    aria-label="Email address for newsletter"
-                                />
-                                <button
-                                    type="submit"
-                                    className="px-3 py-2 bg-[#e8a020] text-[#0a0a0a] text-sm font-semibold rounded-md hover:bg-[#d4911c] transition-colors flex items-center gap-1"
+                            {status === "success" ? (
+                                <div className="px-3 py-2 bg-green-900/20 border border-green-500/20 text-green-400 rounded-md text-sm flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4" /> Subscribed!
+                                </div>
+                            ) : (
+                                <form
+                                    onSubmit={handleSubscribe}
+                                    className="flex gap-2"
+                                    aria-label="Newsletter signup"
                                 >
-                                    <Mail className="w-3.5 h-3.5" />
-                                    Join
-                                </button>
-                            </form>
+                                    <input
+                                        type="email"
+                                        placeholder="your@email.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        disabled={status === "loading"}
+                                        className="flex-1 px-3 py-2 bg-white/10 border border-white/10 rounded-md text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e8a020] transition-colors disabled:opacity-60"
+                                        aria-label="Email address for newsletter"
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={status === "loading"}
+                                        className="px-3 py-2 bg-[#e8a020] text-[#0a0a0a] text-sm font-semibold rounded-md hover:bg-[#d4911c] transition-colors flex items-center gap-1 disabled:opacity-60"
+                                    >
+                                        {status === "loading" ? (
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : (
+                                            <Mail className="w-3.5 h-3.5" />
+                                        )}
+                                        Join
+                                    </button>
+                                </form>
+                            )}
+                            {status === "error" && (
+                                <p className="text-xs text-red-400 mt-1">Something went wrong.</p>
+                            )}
                         </div>
                         {/* Socials */}
                         <div className="flex gap-3 mt-4">
