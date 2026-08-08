@@ -31,13 +31,13 @@ export default function PrivacyPage() {
                 <p>
                     You have the right to access, correct, or delete your personal data. To unsubscribe from
                     our newsletter, use the link at the bottom of any email. For data deletion requests,
-                    contact us at privacy@antigravity.news.
+                    contact us at lazurus@lazurusgroup.com.
                 </p>
                 <h2 className="font-display font-bold text-lg text-gray-900 mt-6">Contact</h2>
                 <p>
                     Questions? Email us at{" "}
-                    <a href="mailto:privacy@antigravity.news" className="text-blue-600 hover:underline">
-                        privacy@antigravity.news
+                    <a href="mailto:lazurus@lazurusgroup.com" className="text-blue-600 hover:underline">
+                        lazurus@lazurusgroup.com
                     </a>
                 </p>
             </div>
