@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/firebase-admin";
 
 const NOTIFY_EMAIL = "lazurus@lazurusgroup.com";
 
@@ -9,8 +10,19 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Valid email required" }, { status: 400 });
         }
 
-        // ── Send notification via Resend (free tier) ──────────────────────
-        // Uses fetch directly — no extra package needed
+        // 1. Save subscriber to Firebase so no data is ever lost
+        try {
+            await db.collection("subscribers").doc(email).set({
+                email,
+                subscribedAt: new Date().toISOString(),
+                source: "Website Form"
+            }, { merge: true });
+        } catch (dbErr) {
+            console.error("[SUBSCRIBE] Firebase error:", dbErr);
+            // Continue even if DB fails, try to send email
+        }
+
+        // 2. Send notification via Resend (if key exists)
         const resendKey = process.env.RESEND_API_KEY;
 
         if (resendKey) {
