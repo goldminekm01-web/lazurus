@@ -16,5 +16,6 @@ export function getAllAuthors(): Author[] {
 }
 
 export function getAuthorBySlug(slug: string): Author | null {
-    return getAllAuthors().find((a) => a.slug === slug) || null;
+    const decodedSlug = decodeURIComponent(slug);
+    return getAllAuthors().find((a) => a.slug === decodedSlug) || null;
 }

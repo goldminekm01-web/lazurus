@@ -53,7 +53,8 @@ export async function getAllPostsIncludingDrafts(): Promise<Post[]> {
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
     try {
-        const doc = await db.collection("posts").doc(slug).get();
+        const decodedSlug = decodeURIComponent(slug);
+        const doc = await db.collection("posts").doc(decodedSlug).get();
         if (!doc.exists) return null;
         const data = doc.data();
         return {

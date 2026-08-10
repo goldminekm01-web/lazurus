@@ -23,5 +23,6 @@ export function getAllCategories(): Category[] {
 }
 
 export function getCategoryBySlug(slug: string): Category | null {
-    return getAllCategories().find((c) => c.slug === slug) || null;
+    const decodedSlug = decodeURIComponent(slug);
+    return getAllCategories().find((c) => c.slug === decodedSlug) || null;
 }
