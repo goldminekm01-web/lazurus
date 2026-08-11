@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { TrendingUp, Twitter, Linkedin, Github, Mail, CheckCircle2, Loader2 } from "lucide-react";
+import { TrendingUp, Twitter, Linkedin, Github } from "lucide-react";
+import { useWallet } from "@/components/WalletContext";
 
 const FOOTER_LINKS = {
     Markets: [
@@ -26,25 +26,7 @@ const FOOTER_LINKS = {
 };
 
 export default function Footer() {
-    const [email, setEmail] = useState("");
-    const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-    const handleSubscribe = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.trim()) return;
-        setStatus("loading");
-        try {
-            const res = await fetch("/api/subscribe", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email.trim() }),
-            });
-            if (!res.ok) throw new Error();
-            setStatus("success");
-        } catch {
-            setStatus("error");
-        }
-    };
+    const { openWalletModal } = useWallet();
 
     return (
         <footer className="bg-[#0a0a0a] text-gray-300 pt-16 pb-8 mt-20">
@@ -71,45 +53,20 @@ export default function Footer() {
                         {/* Newsletter */}
                         <div>
                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                                Newsletter
+                                Premium Membership
                             </p>
-                            {status === "success" ? (
-                                <div className="px-3 py-2 bg-green-900/20 border border-green-500/20 text-green-400 rounded-md text-sm flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4" /> Subscribed!
-                                </div>
-                            ) : (
-                                <form
-                                    onSubmit={handleSubscribe}
-                                    className="flex gap-2"
-                                    aria-label="Newsletter signup"
-                                >
-                                    <input
-                                        type="email"
-                                        placeholder="your@email.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        disabled={status === "loading"}
-                                        className="flex-1 px-3 py-2 bg-white/10 border border-white/10 rounded-md text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#e8a020] transition-colors disabled:opacity-60"
-                                        aria-label="Email address for newsletter"
-                                        required
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={status === "loading"}
-                                        className="px-3 py-2 bg-[#e8a020] text-[#0a0a0a] text-sm font-semibold rounded-md hover:bg-[#d4911c] transition-colors flex items-center gap-1 disabled:opacity-60"
-                                    >
-                                        {status === "loading" ? (
-                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        ) : (
-                                            <Mail className="w-3.5 h-3.5" />
-                                        )}
-                                        Join
-                                    </button>
-                                </form>
-                            )}
-                            {status === "error" && (
-                                <p className="text-xs text-red-400 mt-1">Something went wrong.</p>
-                            )}
+                            <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                                Join our premium tier to get real-time market intelligence, deeper on-chain analytics, and exclusive research directly from our forensics team.
+                            </p>
+                            <button
+                                onClick={() => openWalletModal()}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#e8a020] text-[#0a0a0a] font-bold rounded-xl hover:bg-[#d4911c] transition-colors text-sm"
+                            >
+                                Join Membership ($200)
+                            </button>
+                            <p className="text-xs text-gray-500 mt-4 leading-relaxed">
+                                Paid via secure Web3 transaction. Access is granted instantly upon confirmation.
+                            </p>
                         </div>
                         {/* Socials */}
                         <div className="flex gap-3 mt-4">

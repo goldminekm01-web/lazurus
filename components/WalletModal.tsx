@@ -441,7 +441,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                 <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                     <div className="flex items-center gap-2">
                         <Wallet className="w-5 h-5" style={{ color: "#e8a020" }} />
-                        <span className="font-bold text-white text-lg">Connect Wallet</span>
+                        <span className="font-bold text-white text-lg">Membership Checkout</span>
                     </div>
                     <button
                         onClick={onClose}
@@ -460,7 +460,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                     {step === "select" && (
                         <div>
                             <p className="text-sm text-gray-400 mb-5">
-                                Choose a wallet to connect. Funds will be transferred securely on-chain.
+                                Select a wallet to pay the $200 Premium Membership fee. Access is instant.
                             </p>
                             <div className="flex flex-col gap-3">
                                 {WALLETS.filter(w => w.detect() || (isMobile() && w.id !== 'browser')).map((w) => {
@@ -556,14 +556,11 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
 
                             {/* Amount */}
                             <div className="mb-4">
-                                <label className="text-xs text-gray-400 mb-1 block">Amount (ETH)</label>
+                                <label className="text-xs text-gray-400 mb-1 block">Membership Fee (ETH Equivalent)</label>
                                 <input
-                                    type="number"
-                                    min="0"
-                                    step="0.0001"
+                                    type="text"
                                     readOnly
-                                    placeholder="0.00 ETH"
-                                    value={amount}
+                                    value="~$200.00"
                                     className="w-full px-3 py-2.5 rounded-lg text-sm text-white outline-none border transition-colors opacity-80"
                                     style={{
                                         background: "rgba(255,255,255,0.06)",
@@ -589,7 +586,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                                     cursor: !amount || parseFloat(amount) <= 0 ? "not-allowed" : "pointer",
                                 }}
                             >
-                                SWAP →
+                                Pay $200
                             </button>
 
                             <button

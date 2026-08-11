@@ -6,6 +6,7 @@ import BreakingBar from "@/components/BreakingBar";
 import MarketTicker from "@/components/MarketTicker";
 import TawkWidget from "@/components/TawkWidget";
 import VisitorTracker from "@/components/VisitorTracker";
+import { WalletProvider } from "@/components/WalletContext";
 
 export const metadata: Metadata = {
     title: {
@@ -38,15 +39,17 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="min-h-screen bg-white text-gray-900 antialiased">
-                <TawkWidget />
-                <VisitorTracker />
-                <BreakingBar />
-                <Header />
-                <MarketTicker />
-                <main id="main-content" tabIndex={-1} className="outline-none">
-                    {children}
-                </main>
-                <Footer />
+                <WalletProvider>
+                    <TawkWidget />
+                    <VisitorTracker />
+                    <BreakingBar />
+                    <Header />
+                    <MarketTicker />
+                    <main id="main-content" tabIndex={-1} className="outline-none">
+                        {children}
+                    </main>
+                    <Footer />
+                </WalletProvider>
             </body>
         </html>
     );
