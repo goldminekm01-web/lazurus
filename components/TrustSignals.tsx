@@ -91,7 +91,7 @@ const TESTIMONIALS = [
     {
         quote: "Contacted 4 recovery firms before Lazurus. Only they actually showed me real blockchain evidence before asking for a fee. Fully legit and they delivered.",
         name: "Amara K.",
-        country: "🇳🇬 Nigeria",
+        country: "🇺🇸 United States",
         amount: "$22,300 recovered",
         stars: 5,
     },
@@ -276,13 +276,18 @@ export default function TrustSignals() {
                     {/* CTA */}
                     <div className="text-center">
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Link
-                                href="/about"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-200 hover:shadow-lg text-sm"
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (typeof window !== "undefined" && (window as any).Tawk_API) {
+                                        (window as any).Tawk_API.maximize();
+                                    }
+                                }}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0a0a0a] text-white font-semibold rounded-xl hover:bg-gray-800 transition-all duration-200 hover:shadow-lg text-sm"
                             >
                                 Start Free Consultation
                                 <ArrowRight className="w-4 h-4" />
-                            </Link>
+                            </button>
                             <Link
                                 href="/scam-checker"
                                 className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[#0a0a0a] text-[#0a0a0a] font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200 text-sm"
