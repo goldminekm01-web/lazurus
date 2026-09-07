@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     try {
         const token = request.headers.get("x-admin-token");
-        const adminPassword = process.env.ADMIN_PASSWORD || "antigravity2024";
+        const adminPassword = process.env.ADMIN_PASSWORD;
         if (token !== adminPassword) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

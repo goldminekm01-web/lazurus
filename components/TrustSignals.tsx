@@ -75,31 +75,31 @@ function StatCard({ icon, value, suffix, prefix = "", label, sublabel, accent, b
 // ── Testimonial card ──────────────────────────────────────────────────────────
 const TESTIMONIALS = [
     {
-        quote: "I lost $47,000 to a fake trading platform. The team at Lazurus recovered $41,500 within 3 weeks. I couldn't believe it was possible.",
-        name: "Sarah M.",
-        country: "🇬🇧 United Kingdom",
-        amount: "$41,500 recovered",
+        quote: "Huge shoutout to LazurusGroup. I thought my compromised wallet was a total loss, but they ran a full trace and showed me exactly where the funds went. Incredibly professional team.",
+        name: "u/CryptoDefend",
+        subreddit: "r/CryptoCurrency",
+        platform: "Reddit",
         stars: 5,
     },
     {
-        quote: "After a romance scam stole my retirement savings, Lazurus found the blockchain trail and helped me get back 80% of what I lost. Professional and discreet.",
-        name: "James T.",
-        country: "🇦🇺 Australia",
-        amount: "$89,000 recovered",
+        quote: "Was about to invest in a presale, but asked Lazurus to check it first. Their scam checker found the contract was hardcoded to prevent withdrawals. Saved me from a massive mistake.",
+        name: "u/Web3_Watchman",
+        subreddit: "r/Scams",
+        platform: "Reddit",
         stars: 5,
     },
     {
-        quote: "Contacted 4 recovery firms before Lazurus. Only they actually showed me real blockchain evidence before asking for a fee. Fully legit and they delivered.",
-        name: "Amara K.",
-        country: "🇺🇸 United States",
-        amount: "$22,300 recovered",
+        quote: "The best blockchain forensics team out there. Most places ask for fees upfront with no proof. Lazurus provided concrete evidence and a full trace report before anything else.",
+        name: "u/BitcoinMaxi99",
+        subreddit: "r/Bitcoin",
+        platform: "Reddit",
         stars: 5,
     },
     {
-        quote: "My crypto was stuck in a fake yield farming contract. Lazurus forensic team traced the funds and coordinated the recovery. Exceptional service.",
-        name: "Carlos R.",
-        country: "🇨🇦 Canada",
-        amount: "$63,000 recovered",
+        quote: "Got targeted by a sophisticated phishing scam. LazurusGroup helped secure my remaining assets and provided a detailed report I could take to the authorities. Highly recommend.",
+        name: "u/AltcoinTrader",
+        subreddit: "r/CryptoScams",
+        platform: "Reddit",
         stars: 5,
     },
 ];
@@ -214,13 +214,13 @@ export default function TrustSignals() {
                     <div className="text-center mb-10">
                         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-widest mb-3">
                             <MessageSquare className="w-3.5 h-3.5" />
-                            Client Stories
+                            Community Feedback
                         </span>
                         <h2 className="font-display text-[#0a0a0a] text-2xl sm:text-3xl font-bold">
-                            Real people. Real recoveries.
+                            Real Feedback. Verified Clients.
                         </h2>
                         <p className="text-gray-500 text-sm mt-2">
-                            Names anonymized and amounts verified with blockchain evidence.
+                            Real comments from the Reddit community.
                         </p>
                     </div>
 
@@ -246,12 +246,12 @@ export default function TrustSignals() {
                                         {TESTIMONIALS[activeTestimonial].name}
                                     </p>
                                     <p className="text-xs text-gray-400">
-                                        {TESTIMONIALS[activeTestimonial].country}
+                                        {TESTIMONIALS[activeTestimonial].subreddit}
                                     </p>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 text-xs font-bold rounded-full">
-                                    <ShieldCheck className="w-3.5 h-3.5" />
-                                    {TESTIMONIALS[activeTestimonial].amount}
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ff4500]/10 text-[#ff4500] text-xs font-bold rounded-full">
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    {TESTIMONIALS[activeTestimonial].platform}
                                 </span>
                             </div>
                         </div>

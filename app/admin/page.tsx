@@ -136,7 +136,7 @@ export default function AdminPage() {
             loadWalletData(password);
             loadVisitData(password);
         } else {
-            setError("Incorrect password. Check your ADMIN_PASSWORD environment variable.");
+            setError("Incorrect password. Please try again.");
         }
     };
 
@@ -205,7 +205,7 @@ export default function AdminPage() {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter ADMIN_PASSWORD"
+                                placeholder="Enter Password"
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-[#0a0a0a] text-sm text-gray-900"
                                 autoComplete="current-password"
                                 required
