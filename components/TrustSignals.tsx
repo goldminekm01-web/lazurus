@@ -167,19 +167,19 @@ export default function TrustSignals() {
                             icon={<ShieldCheck className="w-6 h-6" />}
                             value={847}
                             suffix="+"
-                            label="Cases Resolved"
-                            sublabel="Successfully completed crypto recovery cases"
+                            label="Forensic Audits"
+                            sublabel="Comprehensive wallet and contract investigations"
                             accent="#00c47a"
                             bg="#f0fdf8"
                             started={started}
                         />
                         <StatCard
                             icon={<TrendingUp className="w-6 h-6" />}
-                            value={14}
+                            value={250}
                             suffix="M+"
                             prefix="$"
-                            label="Crypto Recovered"
-                            sublabel="Total value returned to scam victims"
+                            label="Assets Traced"
+                            sublabel="Total funds tracked across blockchains for authorities"
                             accent="#e8a020"
                             bg="#fffbeb"
                             started={started}

@@ -293,7 +293,7 @@ export default function ScamCheckerPage() {
                                         <div>
                                             <p className="text-white font-bold text-sm">Think you&apos;ve been scammed?</p>
                                             <p className="text-gray-400 text-xs mt-0.5">
-                                                Our forensic team has recovered over $14M for victims. Free consultation, no upfront fees.
+                                                Our forensic team has traced over $250M in stolen assets for authorities. Free consultation, no upfront fees.
                                             </p>
                                         </div>
                                         <Link
