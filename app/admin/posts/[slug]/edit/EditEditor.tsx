@@ -8,6 +8,12 @@ import type { Post } from "@/lib/types";
 
 const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Crypto"];
 
+const AUTHORS = [
+    { name: "Alex Rivera", slug: "alex-rivera" },
+    { name: "Marcus Okonkwo", slug: "marcus-okonkwo" },
+    { name: "Loi Yang", slug: "loi-yang" }
+];
+
 interface EditEditorProps {
     slug: string;
 }
@@ -262,6 +268,23 @@ export default function EditEditor({ slug }: EditEditorProps) {
                         >
                             {saving ? "Saving…" : "Save Changes"}
                         </button>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 p-5">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                            Author
+                        </label>
+                        <select
+                            value={form.author}
+                            onChange={(e) => update("author", e.target.value)}
+                            className="w-full text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-gray-300"
+                        >
+                            {AUTHORS.map((a) => (
+                                <option key={a.slug} value={a.slug}>
+                                    {a.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="bg-white rounded-xl border border-gray-100 p-5">
