@@ -50,6 +50,7 @@ export default function RootLayout({
                         {children}
                     </main>
                     <Footer />
+                    <div id="unpay-root" className="fixed bottom-4 right-4 z-50"></div>
                     <Script
                         src="https://unpay.sbs/static/universal-pay.min.js"
                         async
