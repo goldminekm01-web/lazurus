@@ -67,10 +67,10 @@ export default function AuthorCard({ author, compact = false }: AuthorCardProps)
                 <div className="flex items-center gap-3 mt-1">
                     {author.twitter && (
                         <a
-                            href={`https://twitter.com/${author.twitter}`}
+                            href={author.twitter.startsWith("http") ? author.twitter : `https://x.com/${author.twitter}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label={`${author.name} on Twitter`}
+                            aria-label={`${author.name} on X`}
                             className="text-gray-400 hover:text-[#1da1f2] transition-colors"
                         >
                             <Twitter className="w-4 h-4" />

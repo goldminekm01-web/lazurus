@@ -131,7 +131,7 @@ export default function Header() {
                                                     key={l.label}
                                                     onClick={() => {
                                                         setMoreOpen(false);
-                                                        openWalletModal();
+                                                        openWalletModal("membership");
                                                     }}
                                                     className="flex flex-col text-left px-4 py-2.5 hover:bg-gray-50 transition-colors w-full"
                                                 >
@@ -187,7 +187,7 @@ export default function Header() {
                                 className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#e8a020]/40 text-[#e8a020] text-sm font-semibold rounded-md hover:bg-[#e8a020]/10 hover:border-[#e8a020] transition-colors"
                             >
                                 <Wallet className="w-3.5 h-3.5" />
-                                Membership
+                                Wallet
                             </button>
 
                             {/* Mobile hamburger */}
@@ -236,7 +236,7 @@ export default function Header() {
                                     onClick={() => { setMenuOpen(false); openWalletModal(); }}
                                     className="flex-1 text-center px-3 py-2 border border-[#e8a020]/40 text-[#e8a020] text-sm font-semibold rounded-md hover:bg-[#e8a020]/10 transition-colors"
                                 >
-                                    Membership
+                                    Wallet
                                 </button>
                             </div>
                         </nav>

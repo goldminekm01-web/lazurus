@@ -58,12 +58,12 @@ export default async function AuthorPage({ params }: Props) {
                     <div className="flex gap-3">
                         {author.twitter && (
                             <a
-                                href={`https://twitter.com/${author.twitter}`}
+                                href={author.twitter.startsWith("http") ? author.twitter : `https://x.com/${author.twitter}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 hover:text-[#1da1f2] hover:border-blue-200 transition-colors"
                             >
-                                <Twitter className="w-3.5 h-3.5" /> @{author.twitter}
+                                <Twitter className="w-3.5 h-3.5" /> @{author.twitter.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\//, "").split("?")[0]}
                             </a>
                         )}
                         {author.linkedin && (

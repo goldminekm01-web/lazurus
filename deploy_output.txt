@@ -1,0 +1,2 @@
+node(58321,0x20c94a240) malloc: *** error for object 0x700000007: pointer being freed was not allocated
+node(58321,0x20c94a240) malloc: *** set a breakpoint in malloc_error_break to debug

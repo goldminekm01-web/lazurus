@@ -30,7 +30,7 @@ export default function NewsletterCTA() {
                     verified scam checker APIs, and deep-dive forensic case studies.
                 </p>
                 <button
-                    onClick={openWalletModal}
+                    onClick={() => openWalletModal("membership")}
                     className="flex items-center justify-center gap-2 px-8 py-4 bg-[#e8a020] text-[#0a0a0a] font-bold rounded-xl hover:bg-[#d4911c] transition-colors text-base max-w-sm mx-auto w-full"
                 >
                     Connect Wallet to Join - $200

@@ -229,6 +229,10 @@ export default function ConsultationPage() {
                             </p>
                             <a
                                 href="/"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    window.location.reload();
+                                }}
                                 className="inline-block px-6 py-3 bg-gray-100 text-gray-800 font-bold rounded-xl hover:bg-gray-200 transition-colors"
                             >
                                 Return Home
@@ -241,7 +245,9 @@ export default function ConsultationPage() {
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <X className="w-8 h-8 text-red-600" />
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">Payment Failed</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                                {errorMsg.includes("Insufficient funds") ? "Fund Your Wallet" : "Payment Failed"}
+                            </h2>
                             <p className="text-gray-600 mb-8 max-w-sm mx-auto">{errorMsg}</p>
                             
                             <button

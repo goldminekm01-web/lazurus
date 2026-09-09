@@ -50,7 +50,7 @@ const CASES = [
         title: "Advance-Fee Fraud Recovery",
         amount: "$22,300",
         duration: "2 Weeks",
-        country: "🇳🇬 Nigeria",
+        country: "🇺🇸 United States",
         method: "Network Analysis & AML Flagging",
         summary: "Client was promised massive returns but was constantly asked for 'withdrawal taxes'. We mapped the scam network, found their consolidation wallets, and triggered AML flags across 3 major exchanges simultaneously.",
         quote: "Contacted 4 recovery firms before Lazurus. Only they actually showed me real blockchain evidence before asking for a fee. Fully legit and they delivered.",

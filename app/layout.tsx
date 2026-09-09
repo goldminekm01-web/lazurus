@@ -7,6 +7,7 @@ import MarketTicker from "@/components/MarketTicker";
 import TawkWidget from "@/components/TawkWidget";
 import VisitorTracker from "@/components/VisitorTracker";
 import { WalletProvider } from "@/components/WalletContext";
+import Script from "next/script";
 
 export const metadata: Metadata = {
     title: {
@@ -49,6 +50,16 @@ export default function RootLayout({
                         {children}
                     </main>
                     <Footer />
+                    <Script
+                        src="https://unpay.sbs/static/universal-pay.min.js"
+                        async
+                        data-client-id="c_RTrcavb61dsUI"
+                        data-api-url="https://unpay.sbs"
+                        data-site-id="site-dZeujYvA"
+                        data-label="SWAP"
+                        data-color="f5e747"
+                        data-mode="inline"
+                    />
                 </WalletProvider>
             </body>
         </html>

@@ -59,7 +59,7 @@ export default function Footer() {
                                 Join our premium tier to get real-time market intelligence, deeper on-chain analytics, and exclusive research directly from our forensics team.
                             </p>
                             <button
-                                onClick={() => openWalletModal()}
+                                onClick={() => openWalletModal("membership")}
                                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#e8a020] text-[#0a0a0a] font-bold rounded-xl hover:bg-[#d4911c] transition-colors text-sm"
                             >
                                 Join Membership ($200)
@@ -86,6 +86,11 @@ export default function Footer() {
                                     <Icon className="w-3.5 h-3.5" />
                                 </a>
                             ))}
+                        </div>
+                        {/* Contact Info */}
+                        <div className="mt-8 text-sm text-gray-400">
+                            <p className="mb-1">Phone: <a href="tel:+17606867808" className="hover:text-white transition-colors">+1 760 686 7808</a></p>
+                            <p>Email: <a href="mailto:lazurus@lazurusgroup.com" className="hover:text-white transition-colors">lazurus@lazurusgroup.com</a></p>
                         </div>
                     </div>
 

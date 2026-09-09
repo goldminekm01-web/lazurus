@@ -17,7 +17,7 @@ export default function SidebarNewsletter() {
             </p>
             
             <button
-                onClick={openWalletModal}
+                onClick={() => openWalletModal("membership")}
                 className="w-full py-2.5 bg-[#e8a020] text-[#0a0a0a] text-sm font-bold rounded-lg hover:bg-[#d4911c] transition-colors flex items-center justify-center gap-2"
             >
                 Join Membership ($200)
