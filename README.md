@@ -10,6 +10,7 @@ A modern, minimal trading/financial news website inspired by CNN's information h
 - **Live market ticker**: Scrolling price strip with simulated live updates
 - **TradingView charts**: Per-article embedded chart widget
 - **Git-based CMS**: Posts are MDX files in `/content/posts` — version-controlled, zero vendor cost
+- **Image Upload**: Admin can upload cover images directly from local machine (saved to `/public/uploads/`) or paste any image URL
 - **Web admin editor**: Password-protected `/admin` with WYSIWYG post editor, scheduling, SEO fields
 - **Full SEO**: sitemap.xml, robots.txt, OG tags, schema.org Article JSON-LD
 - **Accessible**: Skip nav, semantic HTML, ARIA labels, keyboard navigation
@@ -56,6 +57,7 @@ antigravity/
 │   ├── privacy/            # Privacy policy
 │   ├── api/market/         # Serverless market data proxy
 │   ├── api/posts/          # Post CRUD API
+│   ├── api/upload-image/   # Image upload endpoint (admin only)
 │   ├── sitemap.ts          # Auto-generated sitemap
 │   └── robots.ts           # Robots.txt
 ├── components/             # React UI components
@@ -103,7 +105,7 @@ title: "Your Article Title"
 slug: "your-article-slug"
 excerpt: "Short summary for cards."
 deck: "Subtitle shown on article page."
-coverImage: "https://images.unsplash.com/photo-..."
+coverImage: "https://images.unsplash.com/photo-..." or "/uploads/your-uploaded-image.jpg"
 categories: ["Markets"]
 tags: ["bitcoin", "etf"]
 author: "alex-rivera"

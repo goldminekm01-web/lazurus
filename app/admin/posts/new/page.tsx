@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Save, Eye, ArrowLeft, TrendingUp } from "lucide-react";
+import { Save, Eye, ArrowLeft, TrendingUp, Upload } from "lucide-react";
 
 const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Crypto"];
 
@@ -35,6 +35,8 @@ export default function NewPostPage() {
         content: `## Introduction\n\nWrite your article here using Markdown.\n\n> This is a pull quote — use it for impactful stats or quotes.\n\n## Analysis\n\nYour analysis goes here.\n\n## Conclusion\n\nSummarize your key points.\n`,
     });
 
+    const [uploading, setUploading] = useState(false);
+
     const update = (field: string, val: unknown) => {
         setForm((prev) => {
             const next = { ...prev, [field]: val };
@@ -55,6 +57,38 @@ export default function NewPostPage() {
                 ? prev.categories.filter((c) => c !== cat)
                 : [...prev.categories, cat],
         }));
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        const token = sessionStorage.getItem("admin_token") || "";
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const res = await fetch("/api/upload-image", {
+                method: "POST",
+                headers: { "x-admin-token": token },
+                body: formData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                update("coverImage", data.url);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert(`Upload failed: ${err.error || "Unknown error"}`);
+            }
+        } catch (err: any) {
+            alert(`Upload error: ${err.message}`);
+        } finally {
+            setUploading(false);
+            e.target.value = "";
+        }
     };
 
     const handleSave = async (isPublishing = false) => {
@@ -295,14 +329,32 @@ export default function NewPostPage() {
                     {/* Cover image */}
                     <div className="bg-white rounded-xl border border-gray-100 p-5">
                         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
-                            Cover Image URL
+                            Cover Image
                         </label>
-                        <input
-                            type="url"
-                            value={form.coverImage}
-                            onChange={(e) => update("coverImage", e.target.value)}
-                            className="w-full text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-gray-300 font-mono"
-                        />
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                type="url"
+                                value={form.coverImage}
+                                onChange={(e) => update("coverImage", e.target.value)}
+                                className="flex-1 text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-gray-300 font-mono"
+                                placeholder="/uploads/image.jpg or https://..."
+                            />
+                            <label className="flex items-center justify-center px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors" title="Upload image from computer">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                    className="hidden"
+                                    aria-label="Upload cover image"
+                                />
+                                {uploading ? (
+                                    <span className="text-xs text-gray-500">Uploading…</span>
+                                ) : (
+                                    <Upload className="w-4 h-4 text-gray-500" />
+                                )}
+                            </label>
+                        </div>
                         {form.coverImage && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img

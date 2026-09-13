@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Save, Eye, ArrowLeft, TrendingUp } from "lucide-react";
+import { Save, Eye, ArrowLeft, TrendingUp, Upload } from "lucide-react";
 import type { Post } from "@/lib/types";
 
 const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Crypto"];
@@ -11,7 +11,7 @@ const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Cry
 const AUTHORS = [
     { name: "Alex Rivera", slug: "alex-rivera" },
     { name: "Marcus Okonkwo", slug: "marcus-okonkwo" },
-    { name: "Loi Yang", slug: "loi-yang" }
+    { name: "Loi Yang", slug: "loi-yang" },
 ];
 
 interface EditEditorProps {
@@ -23,6 +23,7 @@ export default function EditEditor({ slug }: EditEditorProps) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [preview, setPreview] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [form, setForm] = useState({
         title: "",
         slug: "",
@@ -96,6 +97,38 @@ export default function EditEditor({ slug }: EditEditorProps) {
         }));
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        const token = sessionStorage.getItem("admin_token") || "";
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const res = await fetch("/api/upload-image", {
+                method: "POST",
+                headers: { "x-admin-token": token },
+                body: formData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                update("coverImage", data.url);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert(`Upload failed: ${err.error || "Unknown error"}`);
+            }
+        } catch (err: any) {
+            alert(`Upload error: ${err.message}`);
+        } finally {
+            setUploading(false);
+            e.target.value = "";
+        }
+    };
+
     const handleSave = async (isPublishing = false) => {
         if (!form.title || !form.slug || !form.content) {
             alert("Title, slug and content are required.");
@@ -103,7 +136,7 @@ export default function EditEditor({ slug }: EditEditorProps) {
         }
         setSaving(true);
         const token = sessionStorage.getItem("admin_token") || "";
-        
+
         // If publishing, ensure publishAt is NOW
         const publishDate = isPublishing ? new Date().toISOString() : form.publishAt;
 
@@ -115,15 +148,15 @@ export default function EditEditor({ slug }: EditEditorProps) {
                 .map((t) => t.trim())
                 .filter(Boolean),
         };
-        const { content, slug, ...frontmatter } = payload;
+        const { content, slug: slugField, ...frontmatter } = payload;
 
         try {
             const res = await fetch("/api/posts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "x-admin-token": token },
-                body: JSON.stringify({ slug, frontmatter, content }),
+                body: JSON.stringify({ slug: slugField, frontmatter, content }),
             });
-            
+
             if (res.ok) {
                 router.push("/admin");
                 router.refresh();
@@ -187,6 +220,7 @@ export default function EditEditor({ slug }: EditEditorProps) {
                             value={form.title}
                             onChange={(e) => update("title", e.target.value)}
                             className="w-full font-display text-2xl font-bold text-gray-900 placeholder-gray-300 outline-none border-none"
+                            aria-label="Article title"
                         />
                         <div className="flex gap-3 mt-3">
                             <div className="flex-1">
@@ -303,13 +337,41 @@ export default function EditEditor({ slug }: EditEditorProps) {
                     </div>
 
                     <div className="bg-white rounded-xl border border-gray-100 p-5">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Cover URL</label>
-                        <input
-                            type="text"
-                            value={form.coverImage}
-                            onChange={(e) => update("coverImage", e.target.value)}
-                            className="w-full text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none font-mono"
-                        />
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                            Cover Image
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                type="url"
+                                value={form.coverImage}
+                                onChange={(e) => update("coverImage", e.target.value)}
+                                className="flex-1 text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-gray-300 font-mono"
+                                placeholder="/uploads/image.jpg or https://..."
+                            />
+                            <label className="flex items-center justify-center px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors" title="Upload image from computer">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                    className="hidden"
+                                    aria-label="Upload cover image"
+                                />
+                                {uploading ? (
+                                    <span className="text-xs text-gray-500">Uploading…</span>
+                                ) : (
+                                    <Upload className="w-4 h-4 text-gray-500" />
+                                )}
+                            </label>
+                        </div>
+                        {form.coverImage && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={form.coverImage}
+                                alt="Cover preview"
+                                className="mt-2 rounded-lg w-full aspect-[16/9] object-cover bg-gray-100"
+                            />
+                        )}
                     </div>
 
                     <div className="bg-white rounded-xl border border-gray-100 p-5">
@@ -319,7 +381,7 @@ export default function EditEditor({ slug }: EditEditorProps) {
                             value={form.symbol}
                             onChange={(e) => update("symbol", e.target.value)}
                             placeholder="NASDAQ:AAPL"
-                            className="w-full text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none font-mono"
+                            className="w-full text-sm px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-gray-300 font-mono"
                         />
                     </div>
                 </div>
