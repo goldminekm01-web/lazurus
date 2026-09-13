@@ -10,7 +10,7 @@ A modern, minimal trading/financial news website inspired by CNN's information h
 - **Live market ticker**: Scrolling price strip with simulated live updates
 - **TradingView charts**: Per-article embedded chart widget
 - **Git-based CMS**: Posts are MDX files in `/content/posts` — version-controlled, zero vendor cost
-- **Image Upload**: Admin can upload cover images directly from local machine (saved to `/public/uploads/`) or paste any image URL
+- **Image Upload**: Admin can upload cover images directly from local machine (converted to base64 data URI, no filesystem writes needed)
 - **Web admin editor**: Password-protected `/admin` with WYSIWYG post editor, scheduling, SEO fields
 - **Full SEO**: sitemap.xml, robots.txt, OG tags, schema.org Article JSON-LD
 - **Accessible**: Skip nav, semantic HTML, ARIA labels, keyboard navigation

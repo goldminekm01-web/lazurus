@@ -1,8 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 export async function POST(request: NextRequest) {
     try {
@@ -27,33 +23,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file size (max 10MB)
-        const maxSize = 10 * 1024 * 1024;
+        // Validate file size (max 2MB — data URIs should stay reasonably small)
+        const maxSize = 2 * 1024 * 1024;
         if (file.size > maxSize) {
-            return NextResponse.json({ error: "File too large. Max 10MB." }, { status: 400 });
+            return NextResponse.json(
+                { error: "File too large. Max 2MB. Smaller images are recommended for cover photos." },
+                { status: 400 }
+            );
         }
 
-        // Ensure upload directory exists
-        if (!fs.existsSync(UPLOAD_DIR)) {
-            fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-        }
-
-        // Generate unique filename
-        const timestamp = Date.now();
-        const randomSuffix = Math.random().toString(36).slice(2, 8);
-        const ext = path.extname(file.name).toLowerCase();
-        const filename = `${timestamp}-${randomSuffix}${ext}`;
-        const filepath = path.join(UPLOAD_DIR, filename);
-
-        // Convert file to buffer and save
+        // Convert file to base64 data URI (works in Vercel serverless — no filesystem needed)
         const buffer = Buffer.from(await file.arrayBuffer());
-        fs.writeFileSync(filepath, buffer);
+        const base64 = buffer.toString("base64");
+        const url = `data:${file.type};base64,${base64}`;
 
-        const url = `/uploads/${filename}`;
-
-        return NextResponse.json({ success: true, url, filename });
+        return NextResponse.json({ success: true, url, filename: file.name });
     } catch (error: any) {
         console.error("[upload-image] Error:", error);
-        return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Upload failed" }, { status: 500 });
     }
 }
