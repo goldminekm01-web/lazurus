@@ -35,13 +35,22 @@ export default function ArticleCard({
                     tabIndex={-1}
                     aria-hidden
                 >
-                    <Image
-                        src={post.coverImage}
-                        alt={post.coverImageAlt || post.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 96px, 128px"
-                    />
+                    {post.coverImage?.startsWith("data:") ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={post.coverImage}
+                            alt={post.coverImageAlt || post.title}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <Image
+                            src={post.coverImage}
+                            alt={post.coverImageAlt || post.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 96px, 128px"
+                        />
+                    )}
                 </Link>
 
                 {/* Text */}
@@ -81,13 +90,22 @@ export default function ArticleCard({
                 tabIndex={-1}
                 aria-hidden
             >
-                <Image
-                    src={post.coverImage}
-                    alt={post.coverImageAlt || post.title}
-                    fill
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
+                {post.coverImage?.startsWith("data:") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                        src={post.coverImage}
+                        alt={post.coverImageAlt || post.title}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                ) : (
+                    <Image
+                        src={post.coverImage}
+                        alt={post.coverImageAlt || post.title}
+                        fill
+                        className="object-cover transition-transform duration-300 hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                )}
                 {/* Badges overlay */}
                 <div className="absolute top-2 left-2 flex items-center gap-1.5">
                     {isNewest && (

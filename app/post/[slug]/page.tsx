@@ -174,14 +174,24 @@ export default async function ArticlePage({ params }: Props) {
 
                         {/* Cover image */}
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-gray-100">
-                            <Image
-                                src={post.coverImage}
-                                alt={post.coverImageAlt || post.title}
-                                fill
-                                priority
-                                className="object-cover"
-                                sizes="(max-width: 1024px) 100vw, 800px"
-                            />
+                            {post.coverImage?.startsWith("data:") ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={post.coverImage}
+                                    alt={post.coverImageAlt || post.title}
+                                    className="w-full h-full object-cover"
+                                    loading="eager"
+                                />
+                            ) : (
+                                <Image
+                                    src={post.coverImage}
+                                    alt={post.coverImageAlt || post.title}
+                                    fill
+                                    priority
+                                    className="object-cover"
+                                    sizes="(max-width: 1024px) 100vw, 800px"
+                                />
+                            )}
                         </div>
 
                         {/* Article body */}
