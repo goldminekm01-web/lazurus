@@ -9,8 +9,7 @@ const CATEGORIES = ["Markets", "Economy", "Analysis", "Opinion", "Trading", "Cry
 
 const AUTHORS = [
     { name: "Alex Rivera", slug: "alex-rivera" },
-    { name: "Marcus Okonkwo", slug: "marcus-okonkwo" },
-    { name: "Loi Yang", slug: "loi-yang" }
+    { name: "Lazurus Editor", slug: "lazurus-editor" },
 ];
 
 export default function NewPostPage() {
