@@ -1,10 +1,21 @@
 import { db } from "./firebase-admin";
 import matter from "gray-matter";
 import type { Post } from "./types";
+import { getAuthorBySlug } from "./authors";
 
 function calcReadTime(text: string): number {
     const words = text.trim().split(/\s+/).length;
     return Math.ceil(words / 200);
+}
+
+function resolveAuthor(post: Record<string, unknown>): Record<string, unknown> {
+    const authorSlug = post.author as string | undefined;
+    if (!authorSlug) return post;
+    const author = getAuthorBySlug(authorSlug);
+    if (author) {
+        return { ...post, authorName: author.name };
+    }
+    return post;
 }
 
 export async function getAllPosts(): Promise<Post[]> {
@@ -22,7 +33,7 @@ export async function getAllPosts(): Promise<Post[]> {
         return snapshot.docs.map(doc => {
             const data = doc.data();
             return {
-                ...data,
+                ...resolveAuthor(data),
                 readTime: calcReadTime(data.content || ""),
             } as Post;
         });
@@ -41,7 +52,7 @@ export async function getAllPostsIncludingDrafts(): Promise<Post[]> {
         return snapshot.docs.map(doc => {
             const data = doc.data();
             return {
-                ...data,
+                ...resolveAuthor(data),
                 readTime: calcReadTime(data.content || ""),
             } as Post;
         });
@@ -58,7 +69,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         if (!doc.exists) return null;
         const data = doc.data();
         return {
-            ...data,
+            ...resolveAuthor(data || {}),
             readTime: calcReadTime(data?.content || ""),
         } as Post;
     } catch (error) {
@@ -77,7 +88,7 @@ export async function getFeaturedPosts(count = 3): Promise<Post[]> {
             .get();
 
         return snapshot.docs.map(doc => ({
-            ...doc.data(),
+            ...resolveAuthor(doc.data() || {}),
             readTime: calcReadTime(doc.data().content || ""),
         } as Post));
     } catch (error) {
@@ -102,7 +113,7 @@ export async function getPostsByCategory(categorySlug: string, count?: number): 
 
         const snapshot = await query.get();
         return snapshot.docs.map(doc => ({
-            ...doc.data(),
+            ...resolveAuthor(doc.data() || {}),
             readTime: calcReadTime(doc.data().content || ""),
         } as Post));
     } catch (error) {
@@ -120,7 +131,7 @@ export async function getPostsByTag(tag: string): Promise<Post[]> {
             .get();
 
         return snapshot.docs.map(doc => ({
-            ...doc.data(),
+            ...resolveAuthor(doc.data() || {}),
             readTime: calcReadTime(doc.data().content || ""),
         } as Post));
     } catch (error) {
@@ -138,7 +149,7 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
             .get();
 
         return snapshot.docs.map(doc => ({
-            ...doc.data(),
+            ...resolveAuthor(doc.data() || {}),
             readTime: calcReadTime(doc.data().content || ""),
         } as Post));
     } catch (error) {

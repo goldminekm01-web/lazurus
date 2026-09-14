@@ -8,6 +8,7 @@ export interface Post {
     categories: string[];
     tags: string[];
     author: string;
+    authorName?: string;
     publishAt: string;
     featured?: boolean;
     symbol?: string; // e.g. "NASDAQ:AAPL" for TradingView

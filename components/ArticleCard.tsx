@@ -147,7 +147,7 @@ export default function ArticleCard({
                     {showAuthor && post.author && (
                         <span className="flex items-center gap-1">
                             <User className="w-3 h-3" aria-hidden />
-                            {post.author}
+                            {post.authorName || post.author}
                         </span>
                     )}
                     <span className="flex items-center gap-1">
