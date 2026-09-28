@@ -31,8 +31,7 @@ const IMPERSONATION_PATTERNS = [
     /metamask[-.]?(official|secure|support|help|wallet)/i,
     /trust[-.]?(wallet|official|secure|support)/i,
     /kraken[-.]?(official|secure|pro|support)/i,
-    /ftx[-.]?(official|secure|pro|recovery)/i,
-    /recovery[-.]?(crypto|bitcoin|eth|fund|wallet)/i,
+    /ftx[-.]?(official|secure|pro)/i,
     /claim[-.]?(crypto|bitcoin|eth|reward|airdrop)/i,
     /airdrop[-.]?(crypto|bitcoin|eth|official)/i,
     /double[-.]?(bitcoin|eth|crypto|your)/i,
@@ -202,7 +201,7 @@ function getRiskLevel(score: number): { level: string; color: string; advice: st
     if (score >= 70) return {
         level: "HIGH RISK",
         color: "red",
-        advice: "Do NOT send funds to this address/site. Multiple serious fraud indicators detected. If you have already sent funds, contact us immediately for a recovery consultation.",
+        advice: "Do NOT send funds to this address/site. Multiple serious fraud indicators detected. Report suspicious activity to the relevant authorities and use our Scam Checker to verify additional addresses.",
     };
     if (score >= 40) return {
         level: "SUSPICIOUS",

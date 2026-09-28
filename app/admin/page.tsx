@@ -21,8 +21,14 @@ import {
     Users,
     MapPin,
     Monitor,
+    Vote,
+    BarChart3,
+    Upload,
+    Save,
+    X,
 } from "lucide-react";
 import type { Post } from "@/lib/types";
+import VotingConsole from "@/components/VotingConsole";
 
 interface VisitRecord {
     id: string;
@@ -62,7 +68,7 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(false);
 
     // Tab control
-    const [activeTab, setActiveTab] = useState<"posts" | "wallets" | "visits">("posts");
+    const [activeTab, setActiveTab] = useState<"posts" | "wallets" | "visits" | "voting">("posts");
 
     // Visitor tracking state
     const [visits, setVisits] = useState<VisitRecord[]>([]);
@@ -78,6 +84,30 @@ export default function AdminPage() {
         totalTransferredEth: "0.0000",
     });
     const [loadingWallets, setLoadingWallets] = useState(false);
+
+    // Voting system state
+    const [voteCategories, setVoteCategories] = useState<any[]>([]);
+    const [voteCandidates, setVoteCandidates] = useState<any[]>([]);
+    const [votePayments, setVotePayments] = useState<any[]>([]);
+    const [loadingVoting, setLoadingVoting] = useState(false);
+    const [editingCandidate, setEditingCandidate] = useState<any>(null);
+    const [editingCategory, setEditingCategory] = useState<any>(null);
+    const [candidateForm, setCandidateForm] = useState({
+        name: "",
+        code: "",
+        categoryId: "",
+        image: "",
+        bio: "",
+        active: true,
+    });
+    const [categoryForm, setCategoryForm] = useState({
+        name: "",
+        slug: "",
+        description: "",
+        color: "#0066ff",
+        active: true,
+    });
+    const [uploading, setUploading] = useState(false);
 
     const loadWalletData = useCallback(async (token: string) => {
         setLoadingWallets(true);
@@ -182,7 +212,134 @@ export default function AdminPage() {
         if (token) {
             loadWalletData(token);
             loadVisitData(token);
+            loadVotingData(token);
         }
+    };
+
+    // ─── Voting data loading ─────────────────────────────────────────
+    const loadVotingData = useCallback(async (token: string) => {
+        setLoadingVoting(true);
+        try {
+            const [catRes, candRes, resultsRes] = await Promise.all([
+                fetch("/api/vote/categories", { headers: { "x-admin-token": token } }),
+                fetch("/api/vote/candidates", { headers: { "x-admin-token": token } }),
+                fetch("/api/vote/public?type=results"),
+            ]);
+
+            const catData = catRes.ok ? await catRes.json() : { categories: [] };
+            const candData = candRes.ok ? await candRes.json() : { candidates: [] };
+            const resultsData = resultsRes.ok ? await resultsRes.json() : { results: [] };
+
+            setVoteCategories(catData.categories || []);
+            setVoteCandidates(candData.candidates || []);
+            setVotePayments(resultsData.results || []);
+        } catch (e) {
+            console.error("Failed to load voting data", e);
+        } finally {
+            setLoadingVoting(false);
+        }
+    }, []);
+
+    // ── Voting actions ───────────────────────────────────────────────
+    const handleImageUpload = async (file: File): Promise<string> => {
+        setUploading(true);
+        try {
+            const form = new FormData();
+            form.append("image", file);
+            const token = sessionStorage.getItem("admin_token") || "";
+            const res = await fetch("/api/upload-image", {
+                method: "POST",
+                headers: { "x-admin-token": token },
+                body: form,
+            });
+            const data = await res.json();
+            if (data.success) return data.url;
+            throw new Error(data.error || "Upload failed");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const submitCandidate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const token = sessionStorage.getItem("admin_token") || "";
+        const url = editingCandidate
+            ? `/api/vote/candidates?id=${editingCandidate.id}`
+            : "/api/vote/candidates";
+        const method = editingCandidate ? "PUT" : "POST";
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-token": token,
+                },
+                body: JSON.stringify(candidateForm),
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadVotingData(token);
+                setEditingCandidate(null);
+                setCandidateForm({ name: "", code: "", categoryId: "", image: "", bio: "", active: true });
+            } else {
+                alert(data.error || "Failed to save candidate");
+            }
+        } catch (err) {
+            console.error("Candidate save error:", err);
+            alert("Failed to save candidate. See console for details.");
+        }
+    };
+
+    const deleteCandidate = async (id: string) => {
+        if (!confirm("Delete this candidate? This cannot be undone.")) return;
+        const token = sessionStorage.getItem("admin_token") || "";
+        await fetch(`/api/vote/candidates?id=${id}`, {
+            method: "DELETE",
+            headers: { "x-admin-token": token },
+        });
+        loadVotingData(token);
+    };
+
+    const submitCategory = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const token = sessionStorage.getItem("admin_token") || "";
+        const url = editingCategory
+            ? `/api/vote/categories?id=${editingCategory.id}`
+            : "/api/vote/categories";
+        const method = editingCategory ? "PUT" : "POST";
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-token": token,
+                },
+                body: JSON.stringify(categoryForm),
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadVotingData(token);
+                setEditingCategory(null);
+                setCategoryForm({ name: "", slug: "", description: "", color: "#0066ff", active: true });
+            } else {
+                alert(data.error || "Failed to save category");
+            }
+        } catch (err) {
+            console.error("Category save error:", err);
+            alert("Failed to save category. See console for details.");
+        }
+    };
+
+    const deleteCategory = async (id: string) => {
+        if (!confirm("Delete this category and all its candidates? This cannot be undone.")) return;
+        const token = sessionStorage.getItem("admin_token") || "";
+        await fetch(`/api/vote/categories?id=${id}`, {
+            method: "DELETE",
+            headers: { "x-admin-token": token },
+        });
+        loadVotingData(token);
     };
 
     if (!authed) {
@@ -266,6 +423,16 @@ export default function AdminPage() {
                             }`}
                         >
                             🌍 Visitor Log
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("voting")}
+                            className={`px-4 py-2 text-sm font-semibold border-b-2 transition-all ${
+                                activeTab === "voting"
+                                    ? "border-[#e8a020] text-white"
+                                    : "border-transparent text-gray-400 hover:text-white"
+                            }`}
+                        >
+                            🗳️ Voting Console
                         </button>
                     </div>
 
@@ -738,6 +905,61 @@ export default function AdminPage() {
                                 </table>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* ──────────────── TAB: VOTING ──────────────── */}
+                {activeTab === "voting" && (
+                    <div>
+                        <VotingConsole
+                            categories={voteCategories}
+                            candidates={voteCandidates}
+                            payments={votePayments}
+                            loading={loadingVoting}
+                            uploading={uploading}
+                            onRefresh={() => {
+                                const token = sessionStorage.getItem("admin_token");
+                                if (token) loadVotingData(token);
+                            }}
+                            onSubmitCategory={submitCategory}
+                            onSubmitCandidate={submitCandidate}
+                            onDeleteCategory={deleteCategory}
+                            onDeleteCandidate={deleteCandidate}
+                            onEditCategory={(cat: any) => {
+                                setEditingCategory(cat);
+                                setCategoryForm({
+                                    name: cat.name,
+                                    slug: cat.slug,
+                                    description: cat.description || "",
+                                    color: cat.color || "#0066ff",
+                                    active: cat.active,
+                                });
+                            }}
+                            onEditCandidate={(cand: any) => {
+                                setEditingCandidate(cand);
+                                setCandidateForm({
+                                    name: cand.name,
+                                    code: cand.code,
+                                    categoryId: cand.categoryId,
+                                    image: cand.image || "",
+                                    bio: cand.bio || "",
+                                    active: cand.active,
+                                });
+                            }}
+                            onCancelEdit={() => {
+                                setEditingCategory(null);
+                                setEditingCandidate(null);
+                                setCategoryForm({ name: "", slug: "", description: "", color: "#0066ff", active: true });
+                                setCandidateForm({ name: "", code: "", categoryId: "", image: "", bio: "", active: true });
+                            }}
+                            onUploadImage={handleImageUpload}
+                            categoryForm={categoryForm}
+                            setCategoryForm={setCategoryForm}
+                            candidateForm={candidateForm}
+                            setCandidateForm={setCandidateForm}
+                            editingCategory={editingCategory}
+                            editingCandidate={editingCandidate}
+                        />
                     </div>
                 )}
             </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Menu, X, TrendingUp, ShieldCheck, ChevronDown, Wallet, Crown } from "lucide-react";
+import { Search, Menu, X, TrendingUp, ShieldCheck, ChevronDown, Wallet } from "lucide-react";
 import { useWallet } from "@/components/WalletContext";
 
 const NAV_LINKS = [
@@ -17,10 +17,7 @@ const NAV_LINKS = [
 
 const MORE_LINKS = [
     { label: "🛡️ Free Scam Checker", href: "/scam-checker", desc: "Check wallets & websites for fraud" },
-    { label: "🔍 Case Evaluation", href: "/consultation", desc: "Consult our forensics team" },
-    { label: "Case Studies", href: "/case-studies", desc: "Read verified recovery stories" },
-    { label: "About Us", href: "/about", desc: "Our mission & founders" },
-    { label: "Premium Membership", action: "wallet", desc: "Join for $200 (Crypto)" },
+    { label: "About Us", href: "/about", desc: "Our mission & research" },
     { label: "Privacy Policy", href: "/privacy", desc: "How we handle your data" },
 ];
 
@@ -126,32 +123,15 @@ export default function Header() {
                                 {moreOpen && (
                                     <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl border border-gray-100 shadow-xl py-1.5 z-50 animate-slide-up">
                                         {MORE_LINKS.map((l) => (
-                                            l.action === "wallet" ? (
-                                                <button
-                                                    key={l.label}
-                                                    onClick={() => {
-                                                        setMoreOpen(false);
-                                                        openWalletModal("membership");
-                                                    }}
-                                                    className="flex flex-col text-left px-4 py-2.5 hover:bg-gray-50 transition-colors w-full"
-                                                >
-                                                    <span className="text-sm font-medium text-[#e8a020] flex items-center gap-1.5">
-                                                        <Crown className="w-3.5 h-3.5" />
-                                                        {l.label}
-                                                    </span>
-                                                    <span className="text-xs text-gray-400">{l.desc}</span>
-                                                </button>
-                                            ) : (
-                                                <Link
-                                                    key={l.href}
-                                                    href={l.href!}
-                                                    onClick={() => setMoreOpen(false)}
-                                                    className="flex flex-col px-4 py-2.5 hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <span className="text-sm font-medium text-gray-800">{l.label}</span>
-                                                    <span className="text-xs text-gray-400">{l.desc}</span>
-                                                </Link>
-                                            )
+                                            <Link
+                                                key={l.href}
+                                                href={l.href!}
+                                                onClick={() => setMoreOpen(false)}
+                                                className="flex flex-col px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <span className="text-sm font-medium text-gray-800">{l.label}</span>
+                                                <span className="text-xs text-gray-400">{l.desc}</span>
+                                            </Link>
                                         ))}
                                     </div>
                                 )}

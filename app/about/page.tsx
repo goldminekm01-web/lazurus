@@ -4,11 +4,11 @@ import { Shield, Search, AlertTriangle, Users, Star } from "lucide-react";
 export const metadata: Metadata = {
     title: "About Lazurus — White Hat Hackers Fighting Crypto Fraud",
     description:
-        "Lazurus is a community of white hat hackers determined to keep the digital world safe — especially the wildly under-regulated crypto space. Meet our founders Park Jin Hyok, Ri Ho Nam, and Loi Liang Yang, and read our success stories in crypto scam tracing and fund recovery.",
+        "Lazurus is a community of white hat hackers determined to keep the digital world safe — especially the wildly under-regulated crypto space. Meet our founders Park Jin Hyok, Ri Ho Nam, and Loi Liang Yang, and read our research on crypto scam analysis and blockchain forensics.",
     openGraph: {
         title: "About Lazurus — White Hat Hackers Fighting Crypto Fraud",
         description:
-            "Lazurus is a community of white hat hackers determined to keep the digital world safe — especially the wildly under-regulated crypto space. Meet our founders and read our success stories in crypto scam tracing and fund recovery.",
+            "Lazurus is a community of white hat hackers determined to keep the digital world safe — especially the wildly under-regulated crypto space. Meet our founders and read our research on crypto scam analysis and blockchain forensics.",
         url: "https://lazurusgroup.com/about",
         siteName: "Lazurus",
         type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "About Lazurus — White Hat Hackers Fighting Crypto Fraud",
         description:
-            "A community of white hat hackers fighting crypto scams, tracing stolen funds, and recovering assets for victims.",
+            "A community of white hat hackers fighting crypto scams, analyzing blockchain threats, and exposing fraudulent networks for the security research community.",
         images: ["https://lazurusgroup.com/og-default.jpg"],
     },
 };
@@ -40,7 +40,7 @@ const founders = [
     {
         name: "Ri Ho Nam",
         role: "Co-Founder & Head of Operations",
-        bio: "Ri brings extensive experience in digital asset recovery, social-engineering analysis, and coordinated takedowns of fraudulent networks. His operational precision has been decisive in returning millions to scam victims.",
+        bio: "Ri brings extensive experience in digital asset investigation, social-engineering analysis, and coordinated takedowns of fraudulent networks. His operational precision has been decisive in exposing scam operations to law enforcement.",
         initials: "RHN",
     },
     {
@@ -64,8 +64,8 @@ const pillars = [
     },
     {
         icon: AlertTriangle,
-        title: "Fraud Asset Recovery",
-        desc: "We coordinate directly with exchanges, law enforcement, and legal partners to freeze and recover digitally-stolen assets for victims.",
+        title: "Blockchain Security Research",
+        desc: "Using on-chain analytics, mixer-tracing techniques, and OSINT, we investigate crypto scams and expose the actors behind them through published research.",
     },
     {
         icon: Users,
@@ -106,14 +106,14 @@ export default function AboutPage() {
                     </p>
                     <p>
                         We are a community of white hat hackers, blockchain forensic analysts, and digital
-                        investigators who volunteer our skills to expose fraud, trace stolen crypto, and push
-                        for real accountability in the decentralized space. We don't wait for governments to
+                        investigators who volunteer our skills to expose fraud, publish threat research on crypto
+                        scams, and educate the community. We don't wait for governments to
                         catch up — we act now.
                     </p>
                     <p>
-                        This website is where we publish our <strong className="text-gray-900">success stories</strong>:
-                        documented cases of crypto scam tracing, fund recovery operations, takedown
-                        coordination, and the tactics we used to bring fraudsters to justice. Think of it as
+                        This website is where we publish our <strong className="text-gray-900">investigations</strong>:
+                        documented analyses of crypto scams, blockchain investigation techniques, takedown
+                        coordination, and the tactics fraudsters use. Think of it as
                         our public case file — open, transparent, and built to warn and educate the
                         community we protect.
                     </p>
@@ -189,7 +189,7 @@ export default function AboutPage() {
                         href="/"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-[#e8a020] text-[#0a0a0a] font-semibold text-sm rounded-lg hover:bg-[#e8a020]/90 transition-colors"
                     >
-                        Read Our Case Files →
+                        Read Our Investigations →
                     </a>
                 </div>
             </section>

@@ -356,12 +356,7 @@ export default function ScamCheckerPage() {
                         </div>
 
                         <p className="text-center text-xs text-gray-400">
-                            Already lost funds? <button onClick={(e) => {
-                                e.preventDefault();
-                                if (typeof window !== "undefined" && (window as any).Tawk_API) {
-                                    (window as any).Tawk_API.maximize();
-                                }
-                            }} className="text-[#0066ff] hover:underline font-medium">Start a free recovery consultation →</button>
+                            Have you been targeted by a scam? Use our free <a href="/scam-checker" className="text-[#0066ff] hover:underline">Scam Checker</a> to verify wallets and websites for fraud.
                         </p>
                     </div>
                 )}

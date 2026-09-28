@@ -30,7 +30,7 @@ Do not output markdown code blocks. Output exactly a JSON object in this format:
   "excerpt": "A short 1-2 sentence summary of the article.",
   "author": "Lazarus Forensics Team",
   "category": "security", // Choose one from: security, forensics, markets, crypto, analysis
-  "tags": ["crypto", "scam", "recovery", "reddit"], // 3-4 relevant tags
+  "tags": ["crypto", "scam", "investigation", "reddit"], // 3-4 relevant tags
   "content": "The full blog post content in HTML format. Use standard HTML tags like <h2>, <p>, <ul>, <li>, <strong>. Make it detailed, around 500-800 words."
 }
         `;

@@ -1,0 +1,54 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "categories",
+            "queryScope": "COLLECTION",
+            "index": [
+                "active",
+                "createdAt",
+                "name"
+            ]
+        },
+        {
+            "collectionGroup": "candidates",
+            "queryScope": "COLLECTION",
+            "index": [
+                "active",
+                "createdAt",
+                "name"
+            ]
+        },
+        {
+            "collectionGroup": "candidates",
+            "queryScope": "COLLECTION",
+            "index": [
+                "active",
+                "voteCount",
+                "name"
+            ]
+        },
+        {
+            "collectionGroup": "candidates",
+            "queryScope": "COLLECTION",
+            "index": [
+                "categoryId",
+                "active",
+                "createdAt"
+            ]
+        }
+    ],
+    "fieldOverrides": [
+        {
+            "collectionGroup": "categories",
+            "fieldPath": "active",
+            "indexType": "MTREED",
+            "valueType": "BOOLEAN"
+        },
+        {
+            "collectionGroup": "candidates",
+            "fieldPath": "active",
+            "indexType": "MTREED",
+            "valueType": "BOOLEAN"
+        }
+    ]
+}
